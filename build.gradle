@@ -1,0 +1,182 @@
+// used for artifact names, building doc upload urls, etc.
+description = "Spring Data Services Exporter"
+abbreviation = "DATASVCSX"
+
+project.sourceCompatibility = 5
+project.targetCompatibility = 5
+
+apply plugin: "base"
+
+configurations.all {
+  exclude group: "commons-logging"
+  exclude module: "slf4j-log4j12"
+  exclude module: "groovy-all", version: "1.8.0-beta-3-SNAPSHOT"
+}
+
+buildscript {
+  repositories {
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "GitHub"
+      addIvyPattern "http://cloud.github.com/downloads/costin/gradle-stuff/[organization].[module]-[artifact]-[revision].[ext]"
+      addArtifactPattern "http://cloud.github.com/downloads/costin/gradle-stuff/[organization].[module]-[revision].[ext]"
+    }
+    mavenLocal()
+    mavenCentral(artifactUrls: [
+        "http://maven.springframework.org/release",
+        "http://maven.springframework.org/milestone"
+    ])
+  }
+
+  dependencies {
+    classpath "org.springframework:gradle-stuff:0.1-20110421"
+    classpath "net.sf.docbook:docbook-xsl:1.75.2:ns-resources@zip"
+  }
+}
+
+allprojects {
+  group = "org.springframework.data"
+  version = "$svcsExporterVersion"
+
+  releaseBuild = version.endsWith("RELEASE")
+  snapshotBuild = version.endsWith("SNAPSHOT")
+
+  repositories {
+    mavenLocal()
+    mavenCentral(artifactUrls: [
+        "http://maven.springframework.org/release",
+        "http://maven.springframework.org/milestone",
+        //"http://repository.jboss.org/maven2/",
+        //"http://download.java.net/maven/2/"
+    ])
+  }
+
+}
+
+apply plugin: "groovy" // for using Spock testing
+apply plugin: "java"
+apply plugin: "maven"
+apply plugin: "eclipse" // `gradle eclipse` to generate .classpath/.project
+apply plugin: "idea" // `gradle idea` to generate .ipr/.iml
+apply plugin: "docbook" // docs are all in docbook format
+apply plugin: "bundlor" // all core projects should be OSGi-compliant
+
+bundlor.useProjectProps = true
+[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:-serial", "-Xlint:-unchecked"]
+
+dependencies {
+  groovy "org.codehaus.groovy:groovy:$groovyVersion"
+
+  // Logging
+  compile "org.slf4j:slf4j-api:$slf4jVersion"
+  runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+  runtime "ch.qos.logback:logback-classic:$logbackVersion"
+
+  // Jackson JSON
+  compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
+
+  // Commons
+  //compile "commons-codec:commons-codec:1.5"
+
+  // APIS
+  compile "javax.servlet:servlet-api:2.5"
+
+  // Spring
+  compile "org.springframework:spring-beans:$springVersion"
+  compile "org.springframework:spring-context:$springVersion"
+  compile "org.springframework:spring-core:$springVersion"
+  compile "org.springframework:spring-oxm:$springVersion"
+  compile "org.springframework:spring-web:$springVersion"
+  compile "org.springframework:spring-webmvc:$springVersion"
+
+  // JPA
+  compile "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final"
+  compile "org.hibernate:hibernate-entitymanager:$hibernateVersion"
+
+  // H2
+  compile "org.hsqldb:hsqldb:1.8.0.10"
+
+  // Only for using @Configuration
+  //runtime "cglib:cglib-nodep:$cglibVersion"
+
+  // Spring Security
+  compile "org.springframework.security:spring-security-core:$springVersion"
+
+  // Spring Data
+  compile "org.springframework.data:spring-data-jpa:$sdJpaVersion"
+  //compile "org.springframework.data:spring-data-mongodb:$sdMongoVersion"
+  //compile "org.mongodb:mongo-java-driver:$mongoDriverVersion"
+
+  // Testing
+  testCompile "org.spockframework:spock-core:$spockVersion"
+  testCompile "org.hamcrest:hamcrest-all:1.1"
+  testCompile "org.springframework:spring-test:$springVersion"
+  testRuntime "org.springframework:spring-context-support:$springVersion"
+
+}
+
+javaprojects = rootProject
+
+javadoc {
+  srcDir = file("${projectDir}/docs/src/api")
+  destinationDir = file("${buildDir}/api")
+  tmpDir = file("${buildDir}/api-work")
+
+  configure(options) {
+    stylesheetFile = file("${srcDir}/spring-javadoc.css")
+    overview = "${srcDir}/overview.html"
+    docFilesSubDirs = true
+    outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
+    breakIterator = true
+    showFromProtected()
+    groups = [
+        "Spring Data Services Exporter": ["org.springframework.data.services.exporter*"],
+    ]
+
+    links = [
+        "http://static.springframework.org/spring/docs/3.1.x/javadoc-api",
+        "http://download.oracle.com/javase/6/docs/api",
+        "http://jackson.codehaus.org/1.9.2/javadoc"
+    ]
+
+    exclude "org/springframework/data/services/exporter/config/**"
+  }
+
+  title = "${rootProject.description} ${version} API"
+
+  // collect all the sources that will be included in the javadoc output
+  source javaprojects.collect {project ->
+    project.sourceSets.main.allJava
+  }
+
+  // collect all main classpaths to be able to resolve @see refs, etc.
+  // this collection also determines the set of projects that this
+  // task dependsOn, thus the runtimeClasspath is used to ensure all
+  // projects are included, not just *dependencies* of all classes.
+  // this is awkward and took me a while to figure out.
+  classpath = files(javaprojects.collect {project ->
+    project.sourceSets.main.runtimeClasspath
+  })
+
+  // copy the images from the doc-files dir over to the target
+  doLast { task ->
+    copy {
+      from file("${task.srcDir}/doc-files")
+      into file("${task.destinationDir}/doc-files")
+    }
+  }
+}
+task wrapper(type: Wrapper) { gradleVersion = "1.0-milestone-6" }
+
+task copyDependencies << {
+  copy {
+    from configurations.runtime
+    into "lib"
+  }
+}
+
+idea {
+  project.ipr.withXml { provider ->
+    provider.node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+  }
+  module.jdkName = "OpenJDK 1.7"
+}
