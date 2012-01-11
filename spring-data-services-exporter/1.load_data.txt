@@ -1,0 +1,27 @@
+POST /spring-data-services-exporter/person HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 46
+
+{
+  "firstName": "John",
+  "lastName": "Doe"
+}
+POST /spring-data-services-exporter/person HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 46
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe"
+}
+POST /spring-data-services-exporter/person HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 46
+
+{
+  "firstName": "June",
+  "lastName": "Doe"
+}

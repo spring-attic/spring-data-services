@@ -33,8 +33,11 @@ public class RestExporter {
     if (!allowedMethods.contains(request.getMethod())) {
       return false;
     }
-    String uri = UriComponentsBuilder.newInstance().
-        path(baseUrl).
+    UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+    if (!"/".equals(baseUrl)) {
+      uriBuilder.path(baseUrl);
+    }
+    String uri = uriBuilder.
         pathSegment(name).
         build().
         toUriString();
@@ -46,6 +49,7 @@ public class RestExporter {
     return entityInfo.getJavaType();
   }
 
+  @SuppressWarnings({"unchecked"})
   public Class<? extends Serializable> targetIdType() {
     return entityInfo.getIdType();
   }

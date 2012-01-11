@@ -13,26 +13,6 @@ configurations.all {
   exclude module: "groovy-all", version: "1.8.0-beta-3-SNAPSHOT"
 }
 
-buildscript {
-  repositories {
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-      name = "GitHub"
-      addIvyPattern "http://cloud.github.com/downloads/costin/gradle-stuff/[organization].[module]-[artifact]-[revision].[ext]"
-      addArtifactPattern "http://cloud.github.com/downloads/costin/gradle-stuff/[organization].[module]-[revision].[ext]"
-    }
-    mavenLocal()
-    mavenCentral(artifactUrls: [
-        "http://maven.springframework.org/release",
-        "http://maven.springframework.org/milestone"
-    ])
-  }
-
-  dependencies {
-    classpath "org.springframework:gradle-stuff:0.1-20110421"
-    classpath "net.sf.docbook:docbook-xsl:1.75.2:ns-resources@zip"
-  }
-}
-
 allprojects {
   group = "org.springframework.data"
   version = "$svcsExporterVersion"
@@ -52,15 +32,12 @@ allprojects {
 
 }
 
-apply plugin: "groovy" // for using Spock testing
+apply plugin: "groovy"
 apply plugin: "java"
-apply plugin: "maven"
-apply plugin: "eclipse" // `gradle eclipse` to generate .classpath/.project
-apply plugin: "idea" // `gradle idea` to generate .ipr/.iml
-apply plugin: "docbook" // docs are all in docbook format
-apply plugin: "bundlor" // all core projects should be OSGi-compliant
+apply plugin: "idea"
+apply plugin: "war"
+apply plugin: "jetty"
 
-bundlor.useProjectProps = true
 [compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:-serial", "-Xlint:-unchecked"]
 
 dependencies {
@@ -71,15 +48,9 @@ dependencies {
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
   runtime "ch.qos.logback:logback-classic:$logbackVersion"
 
-  // Google Guava
-  compile "com.google.guava:guava:10.0.1"
-  
-  // Commons
-  compile "commons-codec:commons-codec:1.5"
-
   // Jackson JSON
   compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
-  
+
   // ROME RSS
   compile "org.rometools:rome-modules:1.0"
 
@@ -102,12 +73,6 @@ dependencies {
   // H2
   compile "org.hsqldb:hsqldb:1.8.0.10"
 
-  // Only for using @Configuration
-  //runtime "cglib:cglib-nodep:$cglibVersion"
-
-  // Spring Security
-  compile "org.springframework.security:spring-security-core:$springVersion"
-
   // Spring Data
   compile "org.springframework.data:spring-data-jpa:$sdJpaVersion"
   compile "org.springframework.data:spring-data-mongodb:$sdMongoVersion"
@@ -123,55 +88,6 @@ dependencies {
 
 javaprojects = rootProject
 
-javadoc {
-  srcDir = file("${projectDir}/docs/src/api")
-  destinationDir = file("${buildDir}/api")
-  tmpDir = file("${buildDir}/api-work")
-
-  configure(options) {
-    stylesheetFile = file("${srcDir}/spring-javadoc.css")
-    overview = "${srcDir}/overview.html"
-    docFilesSubDirs = true
-    outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
-    breakIterator = true
-    showFromProtected()
-    groups = [
-        "Spring Data Services Exporter": ["org.springframework.data.services.exporter*"],
-    ]
-
-    links = [
-        "http://static.springframework.org/spring/docs/3.1.x/javadoc-api",
-        "http://download.oracle.com/javase/6/docs/api",
-        "http://jackson.codehaus.org/1.9.2/javadoc"
-    ]
-
-    exclude "org/springframework/data/services/exporter/config/**"
-  }
-
-  title = "${rootProject.description} ${version} API"
-
-  // collect all the sources that will be included in the javadoc output
-  source javaprojects.collect {project ->
-    project.sourceSets.main.allJava
-  }
-
-  // collect all main classpaths to be able to resolve @see refs, etc.
-  // this collection also determines the set of projects that this
-  // task dependsOn, thus the runtimeClasspath is used to ensure all
-  // projects are included, not just *dependencies* of all classes.
-  // this is awkward and took me a while to figure out.
-  classpath = files(javaprojects.collect {project ->
-    project.sourceSets.main.runtimeClasspath
-  })
-
-  // copy the images from the doc-files dir over to the target
-  doLast { task ->
-    copy {
-      from file("${task.srcDir}/doc-files")
-      into file("${task.destinationDir}/doc-files")
-    }
-  }
-}
 task wrapper(type: Wrapper) { gradleVersion = "1.0-milestone-6" }
 
 task copyDependencies << {
