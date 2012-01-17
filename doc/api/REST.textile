@@ -4,6 +4,26 @@ List the domains available:
 
 bc. curl -v http://localhost:8080/baseurl/
 
+p. Without specifying an @Accept@ header, the response would look like:
+
+bc.. HTTP/1.1 200 OK
+Date: ...
+Server: Spring Data Services Web Exporter/1.0.0.BUILD-SNAPSHOT
+
+http://localhost:8080/baseurl/service1/
+http://localhost:8080/baseurl/service2/
+http://localhost:8080/baseurl/service3/
+
+p. Specifying an Accept header will cause this output to be render to the representation specified. e.g. for JSON:
+
+bc.. [
+  {"link": {"rel": "service", url: "http://localhost:8080/baseurl/service1/"}},
+  {"link": {"rel": "service", url: "http://localhost:8080/baseurl/service2/"}},
+  {"link": {"rel": "service", url: "http://localhost:8080/baseurl/service3/"}}
+]
+
+h3. REST API
+
 |_. GET|_. PUT|_. POST|_. DELETE|_. OPTIONS|_. HEAD|_. URL|_. Description|
 |=. X  |      |       |         |          |       | /baseurl/ |List the locations of any available services attached to this base URL by providing links in the body, encoded based on the "Accept" header or newline-separated absolute URIs if no Accept header is specified.|
 |=. X  |      |=. X   |         |          |       | /baseurl/domain/ |If a *POST*, create a new entity and return a Location header denoting the URL of the newly-created resource.<p/> If a *GET*, list the available resources by ID in a representation negotiated between the client and server.|
