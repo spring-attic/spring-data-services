@@ -5,4 +5,5 @@ List the domains available:
 bc. curl -v http://localhost:8080/baseurl/
 
 |_. GET|_. PUT|_. POST|_. DELETE|_. OPTIONS|_. HEAD|_. URL            |_. Description|
-|=. X  |      |       |         |=. X      |       |/baseurl/         |List the locations of any available services attached to this base URL by providing links in the body, encoded based on the "Accept" header or newline-separated absolute URIs if no Accept header is specified.|
+|=. X  |      |       |         |          |       |/baseurl/         |List the locations of any available services attached to this base URL by providing links in the body, encoded based on the "Accept" header or newline-separated absolute URIs if no Accept header is specified.|
+|=. X  |      |=. X   |         |          |       |/baseurl/domain/  |If a *POST*, create a new entity and return a Location header denoting the URL of the newly-created resource.<p/> If a *GET*, list the available resources by ID in a representation negotatiated between the client and server.|
