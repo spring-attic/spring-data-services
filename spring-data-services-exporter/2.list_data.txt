@@ -1,4 +1,0 @@
-GET /spring-data-services-exporter/person HTTP/1.1
-Host: localhost:8080
-Accept: application/json
-

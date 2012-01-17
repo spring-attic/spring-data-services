@@ -8,10 +8,7 @@
     </encoder>
   </appender>
 
-  <logger name="dyn.io.Dynamo" level="INFO"/>
-  <logger name="dyn.io" level="DEBUG"/>
-
-  <logger name="org.springframework.data.services.exporter" level="DEBUG"/>
+  <logger name="org.springframework.data.services" level="DEBUG"/>
   <logger name="org.springframework" level="INFO"/>
 
   <root level="INFO">

@@ -1,0 +1,12 @@
+apply plugin: "war"
+apply plugin: "jetty"
+
+dependencies {
+
+  // APIS
+  compile "javax.servlet:servlet-api:2.5"
+
+  // Spring
+  compile "org.springframework:spring-webmvc:$springVersion"
+
+}
