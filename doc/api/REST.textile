@@ -1,8 +1,8 @@
-# REST API
+h1. REST API
 
 List the domains available:
 
-    curl -v http://localhost:8080/data/
+bc. curl -v http://localhost:8080/baseurl/
 
-|GET|PUT|POST|DELETE|OPTIONS|HEAD|Description|
-|X||||X||List the locations of any available services attached to this base URL.|
+|_. GET|_. PUT|_. POST|_. DELETE|_. OPTIONS|_. HEAD|_. URL            |_. Description|
+|=. X  |      |       |         |=. X      |       |/baseurl/         |List the locations of any available services attached to this base URL by providing links in the body, encoded based on the "Accept" header or newline-separated absolute URIs if no Accept header is specified.|
