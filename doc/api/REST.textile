@@ -1,0 +1,8 @@
+# REST API
+
+List the domains available:
+
+    curl -v http://localhost:8080/data/
+
+|GET|PUT|POST|DELETE|OPTIONS|HEAD|Description|
+|X||||X||List the locations of any available services attached to this base URL.|
