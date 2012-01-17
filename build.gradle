@@ -1,24 +1,30 @@
 apply plugin: "base"
 
-configurations.all {
-  exclude group: "commons-logging"
-  exclude module: "slf4j-log4j12"
-  exclude module: "groovy-all", version: "1.8.0-beta-3-SNAPSHOT"
-}
-
 allprojects {
+  apply plugin: "groovy"
   apply plugin: "idea"
-}
 
-subprojects {
   group = "org.springframework.data.services"
   version = "$svcsExporterVersion"
+
+  releaseBuild = version.endsWith("RELEASE")
+  snapshotBuild = version.endsWith("SNAPSHOT")
 
   sourceCompatibility = 6
   targetCompatibility = 6
 
-  releaseBuild = version.endsWith("RELEASE")
-  snapshotBuild = version.endsWith("SNAPSHOT")
+  configurations.all {
+    exclude group: "commons-logging"
+    exclude module: "slf4j-log4j12"
+    exclude module: "groovy-all", version: "1.8.0-beta-3-SNAPSHOT"
+  }
+
+  dependencies {
+    groovy "org.codehaus.groovy:groovy:$groovyVersion"
+  }
+}
+
+subprojects {
 
   repositories {
     mavenCentral(artifactUrls: [
@@ -30,13 +36,11 @@ subprojects {
     mavenLocal()
   }
 
-  apply plugin: "groovy"
   apply plugin: "java"
 
   [compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:-serial", "-Xlint:-unchecked"]
 
   dependencies {
-    groovy "org.codehaus.groovy:groovy:$groovyVersion"
 
     // Logging
     compile "org.slf4j:slf4j-api:$slf4jVersion"
@@ -58,7 +62,7 @@ subprojects {
     // Testing
     testCompile "org.spockframework:spock-core:$spockVersion"
     testCompile "org.hamcrest:hamcrest-all:1.1"
-    testCompile "org.springframework:spring-rest:$springVersion"
+    testCompile "org.springframework:spring-test:$springVersion"
     testRuntime "org.springframework:spring-context-support:$springVersion"
   }
 

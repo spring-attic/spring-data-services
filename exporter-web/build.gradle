@@ -6,7 +6,20 @@ dependencies {
   // APIS
   compile "javax.servlet:servlet-api:2.5"
 
+  // JPA
+  compile "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final"
+  compile "org.hibernate:hibernate-entitymanager:$hibernateVersion"
+
+  // H2
+  compile "org.hsqldb:hsqldb:1.8.0.10"
+
   // Spring
+  compile "org.springframework:spring-orm:$springVersion"
   compile "org.springframework:spring-webmvc:$springVersion"
+
+  // Spring Data
+  compile "org.springframework.data:spring-data-jpa:$sdJpaVersion"
+  compile "org.springframework.data:spring-data-mongodb:$sdMongoVersion"
+  runtime "org.mongodb:mongo-java-driver:$mongoDriverVersion"
 
 }
