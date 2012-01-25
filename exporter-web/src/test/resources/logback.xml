@@ -9,6 +9,7 @@
   </appender>
 
   <logger name="org.springframework.data.services" level="DEBUG"/>
+  <logger name="org.springframework.web" level="DEBUG"/>
   <logger name="org.springframework" level="INFO"/>
 
   <root level="INFO">

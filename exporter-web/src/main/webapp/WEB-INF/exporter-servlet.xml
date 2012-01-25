@@ -1,47 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-       http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-    <property name="dataSource" ref="dataSource"/>
-    <property name="jpaVendorAdapter">
-      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        <property name="generateDdl" value="true"/>
-        <property name="database" value="HSQL"/>
-      </bean>
+  <!-- Spring MVC >=3.1 -->
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"/>
+  <bean class="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver"/>
+  <bean class="org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver"/>
+
+  <!-- Generic utilities used throughout -->
+  <bean id="baseUri" class="java.net.URI">
+    <constructor-arg value="http://localhost:8080/data"/>
+  </bean>
+  <bean id="conversionService" class="org.springframework.core.convert.support.DefaultConversionService"/>
+
+  <!-- Metadata for JPA Repositories -->
+  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.JpaRepositoryMetadata"/>
+  <bean id="repositoryResolver" class="org.springframework.data.services.repository.JpaRepositoryResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg>
+      <list>
+        <ref bean="jpaRepositoryMetadata"/>
+      </list>
+    </constructor-arg>
+  </bean>
+  <bean id="repositoryEntityResolver" class="org.springframework.data.services.repository.JpaRepositoryEntityResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+    <constructor-arg ref="conversionService"/>
+  </bean>
+
+  <!-- The Exporter -->
+  <bean class="org.springframework.data.services.web.exporter.ResourceExporterController">
+    <property name="baseUri" ref="baseUri"/>
+    <property name="readResolvers">
+      <list>
+        <ref bean="repositoryResolver"/>
+        <ref bean="repositoryEntityResolver"/>
+        <bean class="org.springframework.data.services.web.exporter.QueryStringPropertyResolver">
+          <constructor-arg value="p"/>
+        </bean>
+      </list>
     </property>
-    <property name="persistenceUnitName" value="jpa.sample"/>
   </bean>
 
-  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-    <property name="entityManagerFactory" ref="entityManagerFactory"/>
-  </bean>
-
-  <jdbc:embedded-database id="dataSource" type="HSQL"/>
-
-  <jpa:repositories base-package="org.springframework.data.services.web.repository"/>
-
+  <!-- Handle rendering in different representations -->
   <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-    <property name="mediaTypes">
-      <map>
-        <entry key="json" value="application/json"/>
-        <!--
-        <entry key="atom" value="application/atom+xml"/>
-        <entry key="xml" value="application/xml"/>
-        -->
-      </map>
-    </property>
     <property name="defaultContentType" value="application/json"/>
     <property name="defaultViews">
       <list>
-        <bean id="json" class="org.springframework.data.services.web.JsonView"/>
+        <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/>
       </list>
     </property>
   </bean>

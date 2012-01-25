@@ -25,6 +25,15 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
   private ApplicationContext applicationContext;
   private Map<Class<?>, RepositoryCacheEntry> repositories = new HashMap<Class<?>, RepositoryCacheEntry>();
 
+  public CrudRepository repositoryFor(String name) {
+    for (Map.Entry<Class<?>, RepositoryCacheEntry> entry : repositories.entrySet()) {
+      if (name.equals(repositoryNameFor(entry.getValue().repository))) {
+        return entry.getValue().repository;
+      }
+    }
+    return null;
+  }
+
   public CrudRepository repositoryFor(Class<?> domainClass) {
     RepositoryCacheEntry entry = repositories.get(domainClass);
     if (null != entry) {
@@ -81,7 +90,8 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
       try {
         SingletonTargetSource targetRepo = (SingletonTargetSource) m.invoke(repository);
         EntityInformation entityInfo = (EntityInformation) infoField.get(targetRepo.getTarget());
-        String name = StringUtils.uncapitalize(repoClass.getSimpleName().replaceAll("Repository", ""));
+        Class<?>[] intfs = repository.getClass().getInterfaces();
+        String name = StringUtils.uncapitalize(intfs[0].getSimpleName().replaceAll("Repository", ""));
         this.repositories.put(entityInfo.getJavaType(), new RepositoryCacheEntry(name, repository, entityInfo));
       } catch (Throwable t) {
         throw new IllegalStateException(t);
@@ -91,7 +101,12 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
 
   @Override public void afterPropertiesSet() throws Exception {
     if (this.repositories.isEmpty()) {
-      setRepositories(applicationContext.getBeansOfType(CrudRepository.class).values());
+      ApplicationContext appCtx = applicationContext;
+      while (null != appCtx) {
+        Map<String, CrudRepository> beans = appCtx.getBeansOfType(CrudRepository.class);
+        setRepositories(beans.values());
+        appCtx = appCtx.getParent();
+      }
     }
   }
 

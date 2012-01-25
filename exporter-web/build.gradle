@@ -17,6 +17,9 @@ dependencies {
   compile "org.springframework:spring-orm:$springVersion"
   compile "org.springframework:spring-webmvc:$springVersion"
 
+  // Exporter core
+  compile project(":exporter-core")
+
   // Spring Data
   compile "org.springframework.data:spring-data-jpa:$sdJpaVersion"
   compile "org.springframework.data:spring-data-mongodb:$sdMongoVersion"

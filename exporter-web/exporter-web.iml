@@ -27,6 +27,8 @@
     </facet>
     <facet type="Spring" name="Spring">
       <configuration>
+        <fileset id="web: application context" profiles="" autodetected="true" />
+        <fileset id="MVC exporter servlet context" profiles="" autodetected="true" />
         <fileset id="web: exporter servlet context" profiles="" autodetected="true" />
       </configuration>
     </facet>
@@ -450,22 +452,22 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.springframework.data/spring-data-commons-core/1.1.0.RELEASE/jar/819de0255a354869a046cc4b3ba6fe59f147b110/spring-data-commons-core-1.1.0.RELEASE.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.springframework.data/spring-data-commons-core/1.2.0.RELEASE/jar/dbc606a35154cdca44fdfe84668dcf0a77fb88f1/spring-data-commons-core-1.2.0.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.springframework.data/spring-data-commons-core/1.1.0.RELEASE/source/1e8fa436c8e98eda6e3dad435ab139c5951c40bf/spring-data-commons-core-1.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.springframework.data/spring-data-commons-core/1.2.0.RELEASE/source/5d5b7179a8d6a11b0817001108ef4f7a9cf5db8a/spring-data-commons-core-1.2.0.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.1/jar/99c61095a14dfc9e47a086068033c286bf236475/jcl-over-slf4j-1.6.1.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.4/jar/aad8e9df65ebb68e3ba6f269e3312707f7f1065f/jcl-over-slf4j-1.6.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.1/source/dbc80dfd897e3bc528199ff97e29e44a0ac4b462/jcl-over-slf4j-1.6.1-sources.jar!/" />
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.4/source/ab90d9b9f6bcc8441bd28078153ff5bdf45a95d4/jcl-over-slf4j-1.6.4-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -516,17 +518,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="" scope="RUNTIME">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.4/jar/aad8e9df65ebb68e3ba6f269e3312707f7f1065f/jcl-over-slf4j-1.6.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.4/source/ab90d9b9f6bcc8441bd28078153ff5bdf45a95d4/jcl-over-slf4j-1.6.4-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
+    <orderEntry type="module" module-name="exporter-core" exported="" />
     <orderEntry type="module-library" exported="" scope="RUNTIME">
       <library>
         <CLASSES>
