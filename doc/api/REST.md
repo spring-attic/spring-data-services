@@ -1,5 +1,25 @@
 # REST API
 
+### Resources
+
+Here's what some sample resources would look like on the server side as a JPA entity:
+
+    @Entity
+    class Person {
+      @Id @GeneratedValue Long id;
+      String name;
+      String type;
+      @OneToMany
+      List<Account> accounts;
+    }
+
+    @Entity
+    class Account {
+      @Id @GeneratedValue Long id;
+      String type;
+      String url;
+    }
+
 ### Discoverability
 
 Following the principles of [HATEOS](http://en.wikipedia.org/wiki/HATEOAS), the REST API should be fundamentally discoverable, starting with the base URL:
@@ -34,6 +54,8 @@ Specifying an Accept header should cause the output to be rendered in the repres
     ]
 
 ### Links
+
+The method for exposing links here is somewhat arbitrary since there's no real consenus on how this should be done in JSON. The DOJO framework has [some linking functionality](http://www.sitepen.com/blog/2008/06/17/json-referencing-in-dojo/) that uses "$ref" as a field name, which corresponds to what MongoDB documents use for DBRefs. This convention seems as good as any other, so is the one we'll be using here.
 
 If the server understands links on the entity (meaning it's a JPA Entity with a @OneTo... et al mapping), then the user could POST new associations directly inline in the parent JSON:
 
@@ -72,9 +94,9 @@ One could mix a `$ref` with data if you wanted to update the list and add a new 
       ]
     }
 
-If you want to resolve the links and retrieve the actual data of the linked entities, then you'd specify a URL fragment corresponding to the property name:
+If you want to resolve the links and retrieve the actual data of the linked entities, then you'd specify a URL query parameter(s) corresponding to the property name (the parameter name is configurable so could be "properties", "property", or "bob"):
 
-    curl -v -H "Accept: application/json" http://localhost:8080/baseurl/person/1#accounts
+    curl -v -H "Accept: application/json" http://localhost:8080/baseurl/person/1?p=accounts
 
     HTTP/1.1 200 OK
     Date: ...
@@ -201,7 +223,7 @@ HTTP/1.1 204 No Content
   <td style="text-align: center"></td>
   <td style="text-align: center"></td>
   <td style="text-align: center"></td>
-  <td>/baseurl/person/1#accounts</td>
+  <td>/baseurl/person/1?p=accounts</td>
   <td></td>
   <td>GET:<pre>
 HTTP/1.1 200 OK
