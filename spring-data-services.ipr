@@ -64,6 +64,7 @@
             <element id="file-copy" path="$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/jcl-over-slf4j/1.6.1/jar/99c61095a14dfc9e47a086068033c286bf236475/jcl-over-slf4j-1.6.1.jar" />
             <element id="file-copy" path="$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.aspectj/aspectjrt/1.6.8/jar/8c234df6a43dd5ba355803122e33caa7ccd11011/aspectjrt-1.6.8.jar" />
             <element id="file-copy" path="$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.mongodb/mongo-java-driver/2.6.5/jar/e33bb494ca9023cbce92f230b5fb4ee9c478e5fe/mongo-java-driver-2.6.5.jar" />
+            <element id="file-copy" path="$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.springframework.data/spring-data-commons-core/1.2.0.RELEASE/jar/dbc606a35154cdca44fdfe84668dcf0a77fb88f1/spring-data-commons-core-1.2.0.RELEASE.jar" />
           </element>
         </element>
       </root>
@@ -93,6 +94,9 @@
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
+  <component name="EntryPointsManager">
+    <entry_points version="2.0" />
+  </component>
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-10/build/artifacts/spring_data_services_exporter_Web_exploded/WEB-INF/classes/META-INF/persistence.xml" />
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-10/build/classes/test/META-INF/persistence.xml" />
@@ -137,6 +141,9 @@
     <setting name="root" />
   </component>
   <component name="IdProvider" IDEtalkID="11DA1DB66DD62DDA1ED602B7079FE97C" />
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked" />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -164,7 +171,7 @@
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="OpenJDK 1.7" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build" />
   </component>
   <component name="SvnBranchConfigurationManager">
