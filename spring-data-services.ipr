@@ -14,6 +14,7 @@
             <element id="module-output" name="exporter-core" />
             <element id="jpa-descriptors" facet="exporter-web/jpa/JPA" />
             <element id="module-test-output" name="exporter-web" />
+            <element id="module-output" name="exporter-repository" />
           </element>
           <element id="directory" name="lib">
             <element id="file-copy" path="$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.slf4j/slf4j-api/1.6.4/jar/2396d74b12b905f780ed7966738bb78438e8371a/slf4j-api-1.6.4.jar" />
@@ -107,6 +108,11 @@
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-11/build/classes/test/META-INF/persistence.xml" />
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-11/build/exporter/WEB-INF/classes/META-INF/persistence.xml" />
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-11/src/test/resources/META-INF/persistence.xml" />
+    <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/build/artifacts/spring_data_services_exporter_war_exploded/WEB-INF/classes/META-INF/persistence.xml" />
+    <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/build/artifacts/war/WEB-INF/classes/META-INF/persistence.xml" />
+    <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/build/classes/main/META-INF/persistence.xml" />
+    <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/build/resources/main/META-INF/persistence.xml" />
+    <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/src/main/resources/META-INF/persistence.xml" />
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17/build/artifacts/spring_data_services_exporter_war_exploded/WEB-INF/classes/META-INF/persistence.xml" />
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17/build/artifacts/war/WEB-INF/classes/META-INF/persistence.xml" />
     <file type="jpa" url="file://$PROJECT_DIR$/exporter-2012-01-17/build/classes/main/META-INF/persistence.xml" />
@@ -126,6 +132,9 @@
     <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-10/src/test/webapp/WEB-INF/exporter-servlet.xml" />
     <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-11/build/exporter/WEB-INF/exporter-servlet.xml" />
     <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-11/src/test/webapp/WEB-INF/exporter-servlet.xml" />
+    <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/build/artifacts/spring_data_services_exporter_war_exploded/WEB-INF/exporter-servlet.xml" />
+    <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/build/artifacts/war/WEB-INF/exporter-servlet.xml" />
+    <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-17-2/src/main/webapp/WEB-INF/exporter-servlet.xml" />
     <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-17/build/artifacts/spring_data_services_exporter_war_exploded/WEB-INF/exporter-servlet.xml" />
     <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-17/build/artifacts/war/WEB-INF/exporter-servlet.xml" />
     <file type="Spring" url="file://$PROJECT_DIR$/exporter-2012-01-17/spring-data-services-exporter/build/artifacts/spring_data_services_exporter_war_exploded/WEB-INF/exporter-servlet.xml" />
@@ -167,6 +176,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/exporter-core/exporter-core.iml" filepath="$PROJECT_DIR$/exporter-core/exporter-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/exporter-repository/exporter-repository.iml" filepath="$PROJECT_DIR$/exporter-repository/exporter-repository.iml" />
       <module fileurl="file://$PROJECT_DIR$/exporter-web/exporter-web.iml" filepath="$PROJECT_DIR$/exporter-web/exporter-web.iml" />
       <module fileurl="file://$PROJECT_DIR$/spring-data-services.iml" filepath="$PROJECT_DIR$/spring-data-services.iml" />
     </modules>

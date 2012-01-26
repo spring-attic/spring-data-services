@@ -1,2 +1,3 @@
 include "exporter-core",
-  "exporter-web"
+        "exporter-repository",
+        "exporter-web"

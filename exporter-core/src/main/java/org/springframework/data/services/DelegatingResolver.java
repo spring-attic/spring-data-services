@@ -36,6 +36,7 @@ public class DelegatingResolver implements Resolver {
     return false;
   }
 
+  @SuppressWarnings({"unchecked"})
   @Override public Object resolve(URI uri, Object target) {
     for (Resolver r : resolvers) {
       if (r.supports(uri, target)) {
