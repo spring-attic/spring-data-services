@@ -2,11 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
+  <tx:annotation-driven/>
   <jdbc:embedded-database id="dataSource" type="HSQL"/>
 
   <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
@@ -23,18 +26,30 @@
     <property name="entityManagerFactory" ref="entityManagerFactory"/>
   </bean>
 
-  <jpa:repositories base-package="org.springframework.data.services.repository"/>
+  <jpa:repositories base-package="org.springframework.data.services.repository.jpa"/>
 
   <bean id="baseUri" class="java.net.URI">
     <constructor-arg value="http://localhost:8080/data"/>
   </bean>
-  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.JpaRepositoryMetadata"/>
+  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata"/>
   <bean id="conversionService" class="org.springframework.core.convert.support.DefaultConversionService"/>
+  <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <property name="transactionManager" ref="transactionManager"/>
+  </bean>
 
-  <bean class="org.springframework.data.services.repository.JpaRepositoryEntityResolver">
+  <bean class="org.springframework.data.services.repository.jpa.JpaRepositoryEntityResolver">
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
     <constructor-arg ref="conversionService"/>
+    <constructor-arg ref="transactionTemplate"/>
   </bean>
+
+  <bean class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+    <constructor-arg ref="transactionTemplate"/>
+  </bean>
+
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
 </beans>

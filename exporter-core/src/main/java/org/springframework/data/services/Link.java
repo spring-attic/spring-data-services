@@ -7,8 +7,10 @@ import java.net.URI;
  */
 public interface Link {
 
-  String type();
+  public static final String LINKS = "_links";
 
-  URI uri();
+  String rel();
+
+  URI href();
 
 }

@@ -1,15 +1,18 @@
-package org.springframework.data.services.repository;
+package org.springframework.data.services.repository.jpa;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.services.Resolver;
 import org.springframework.data.services.util.UriUtils;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -17,25 +20,19 @@ import org.springframework.util.ClassUtils;
  */
 public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
 
-  @Autowired
   private JpaRepositoryMetadata repositoryMetadata;
-  @Autowired
   private ConversionService conversionService;
+  private TransactionTemplate transactionTemplate;
   private URI baseUri;
 
-  public JpaRepositoryEntityResolver(URI baseUri) {
-    this.baseUri = baseUri;
-  }
-
-  public JpaRepositoryEntityResolver(URI baseUri, ConversionService conversionService) {
-    this.baseUri = baseUri;
-    this.conversionService = conversionService;
-  }
-
-  public JpaRepositoryEntityResolver(URI baseUri, JpaRepositoryMetadata repositoryMetadata, ConversionService conversionService) {
+  public JpaRepositoryEntityResolver(URI baseUri,
+                                     JpaRepositoryMetadata repositoryMetadata,
+                                     ConversionService conversionService,
+                                     TransactionTemplate transactionTemplate) {
     this.baseUri = baseUri;
     this.repositoryMetadata = repositoryMetadata;
     this.conversionService = conversionService;
+    this.transactionTemplate = transactionTemplate;
   }
 
   @Override public boolean supports(URI uri, Object target) {
@@ -58,7 +55,7 @@ public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
   }
 
   @SuppressWarnings({"unchecked"})
-  @Override public Object resolve(URI uri, CrudRepository repository) {
+  @Override public Object resolve(URI uri, final CrudRepository repository) {
     EntityInformation entityInfo = repositoryMetadata.entityInfoFor(repository);
     if (uri.isAbsolute()) {
       List<URI> uris = UriUtils.explode(baseUri, uri);
@@ -66,13 +63,21 @@ public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
         uri = uris.get(uris.size() - 1);
       }
     }
-    String sid = uri.getPath();
-    Class<? extends Serializable> idType = entityInfo.getIdType();
-    return repository.findOne(
-        !ClassUtils.isAssignable(idType, String.class)
-            ? conversionService.convert(sid, idType)
-            : sid
-    );
+    final String sid = uri.getPath();
+    final Class<? extends Serializable> idType = entityInfo.getIdType();
+
+    return transactionTemplate.execute(new TransactionCallback<Object>() {
+      @Override public Object doInTransaction(TransactionStatus status) {
+        Object o = repository.findOne(
+            !ClassUtils.isAssignable(idType, String.class)
+                ? conversionService.convert(sid, idType)
+                : sid
+        );
+
+
+        return o;
+      }
+    });
   }
 
 }

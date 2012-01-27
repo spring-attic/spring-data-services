@@ -1,4 +1,4 @@
-package org.springframework.data.services.repository;
+package org.springframework.data.services.repository.jpa;
 
 import java.net.URI;
 import java.util.ArrayList;

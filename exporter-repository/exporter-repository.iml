@@ -13,10 +13,10 @@
     </facet>
     <facet type="Spring" name="Spring">
       <configuration>
-        <fileset id="fileset1" name="My Fileset" removed="false">
+        <fileset id="fileset1" name="JPA" removed="false">
           <file>file://$MODULE_DIR$/src/test/resources/JpaRepositoryEntityResolver-test.xml</file>
-          <file>file://$MODULE_DIR$/src/test/resources/Resolver-test.xml</file>
         </fileset>
+        <fileset id="fileset2" name="Resolver" removed="false" />
       </configuration>
     </facet>
   </component>
@@ -403,6 +403,17 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.spockframework/spock-core/0.5-groovy-1.8/source/42ad4b7060807d0c13da2670b94d86c289ac4db6/spock-core-0.5-groovy-1.8-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.spockframework/spock-spring/0.5-groovy-1.8/jar/6eee91a4dca521ff93ab82175b4b65e66695fd8a/spock-spring-0.5-groovy-1.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.spockframework/spock-spring/0.5-groovy-1.8/source/40e43ab43fe73d1bce4b110804704f76127b8f1d/spock-spring-0.5-groovy-1.8-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

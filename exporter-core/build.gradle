@@ -1,3 +1,6 @@
 dependencies {
 
+  // Google Guava
+  compile "com.google.guava:guava:10.0.1"
+
 }

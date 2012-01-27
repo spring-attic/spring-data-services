@@ -27,6 +27,13 @@
     </facet>
     <facet type="Spring" name="Spring">
       <configuration>
+        <fileset id="web: application context" name="JPA Repositories" removed="false">
+          <file>file://$MODULE_DIR$/src/main/webapp/WEB-INF/repositories.xml</file>
+        </fileset>
+        <fileset id="MVC exporter servlet context" name="MVC" removed="false">
+          <dependency>web: application context</dependency>
+          <file>file://$MODULE_DIR$/src/main/webapp/WEB-INF/exporter-servlet.xml</file>
+        </fileset>
         <fileset id="web: application context" profiles="" autodetected="true" />
         <fileset id="MVC exporter servlet context" profiles="" autodetected="true" />
         <fileset id="web: exporter servlet context" profiles="" autodetected="true" />
@@ -560,6 +567,17 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.spockframework/spock-core/0.5-groovy-1.8/source/42ad4b7060807d0c13da2670b94d86c289ac4db6/spock-core-0.5-groovy-1.8-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.spockframework/spock-spring/0.5-groovy-1.8/jar/6eee91a4dca521ff93ab82175b4b65e66695fd8a/spock-spring-0.5-groovy-1.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.gradle/caches/artifacts-8/filestore/org.spockframework/spock-spring/0.5-groovy-1.8/source/40e43ab43fe73d1bce4b110804704f76127b8f1d/spock-spring-0.5-groovy-1.8-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

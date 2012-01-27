@@ -19,6 +19,9 @@ public class Person {
   @OneToMany
   private List<Profile> profiles;
 
+  public Person() {
+  }
+
   public Person(String name) {
     this.name = name;
   }

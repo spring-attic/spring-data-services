@@ -16,6 +16,9 @@ public class Profile {
   private String type;
   private String url;
 
+  public Profile() {
+  }
+
   public Profile(String type, String url) {
     this.type = type;
     this.url = url;

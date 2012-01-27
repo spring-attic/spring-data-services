@@ -1,4 +1,4 @@
-package org.springframework.data.services.repository;
+package org.springframework.data.services.repository.jpa;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

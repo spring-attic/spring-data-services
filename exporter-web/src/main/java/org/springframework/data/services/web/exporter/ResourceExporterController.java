@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,7 +13,9 @@ import org.springframework.data.services.DelegatingResolver;
 import org.springframework.data.services.Resolver;
 import org.springframework.data.services.util.UriUtils;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,7 +56,7 @@ public class ResourceExporterController implements ApplicationContextAware, Init
   }
 
   public ResourceExporterController setReadResolvers(List<Resolver> readResolvers) {
-    Assert.notNull(readResolvers, "Resolvers cannot be null.");
+    Assert.notNull(readResolvers, "Read resolvers cannot be null.");
     this.readResolvers.resolvers().addAll(readResolvers);
     return this;
   }
@@ -70,7 +71,7 @@ public class ResourceExporterController implements ApplicationContextAware, Init
   }
 
   @RequestMapping(method = RequestMethod.HEAD)
-  public void head(HttpServletRequest request, HttpServletResponse response, Model model) {
+  public void head(HttpServletRequest request, Model model) {
     try {
       URI requestUri = new URI(request.getRequestURL().toString());
       System.out.println("URI: " + requestUri);
@@ -82,10 +83,10 @@ public class ResourceExporterController implements ApplicationContextAware, Init
       }
 
       if (null != o) {
-        response.setStatus(200);
+        model.addAttribute("status", HttpStatus.OK);
         model.addAttribute("resource", o);
       } else {
-        response.setStatus(404);
+        model.addAttribute("status", HttpStatus.NOT_FOUND);
       }
     } catch (URISyntaxException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -93,9 +94,30 @@ public class ResourceExporterController implements ApplicationContextAware, Init
 
   }
 
+  @Transactional(readOnly = true)
   @RequestMapping(method = RequestMethod.GET)
   public void get(HttpServletRequest request, Model model) {
+    try {
+      URI requestUri = new URI(request.getRequestURL().toString());
+      System.out.println("URI: " + requestUri);
 
+      Object o = null;
+      for (URI uri : UriUtils.explode(baseUri, requestUri)) {
+        o = readResolvers.resolve(uri, o);
+        System.out.println("o: " + o);
+      }
+      if (readResolvers.supports(requestUri, o)) {
+        o = readResolvers.resolve(requestUri, o);
+      }
+      if (null != o) {
+        model.addAttribute("status", HttpStatus.OK);
+        model.addAttribute("resource", o);
+      } else {
+        model.addAttribute("status", HttpStatus.NOT_FOUND);
+      }
+    } catch (URISyntaxException e) {
+      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
   }
 
   @RequestMapping(method = RequestMethod.POST)

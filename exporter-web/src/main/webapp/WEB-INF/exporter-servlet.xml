@@ -15,10 +15,14 @@
     <constructor-arg value="http://localhost:8080/data"/>
   </bean>
   <bean id="conversionService" class="org.springframework.core.convert.support.DefaultConversionService"/>
+  <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <property name="transactionManager" ref="transactionManager"/>
+  </bean>
 
   <!-- Metadata for JPA Repositories -->
-  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.JpaRepositoryMetadata"/>
-  <bean id="repositoryResolver" class="org.springframework.data.services.repository.JpaRepositoryResolver">
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata"/>
+  <bean id="repositoryResolver" class="org.springframework.data.services.repository.jpa.JpaRepositoryResolver">
     <constructor-arg ref="baseUri"/>
     <constructor-arg>
       <list>
@@ -26,10 +30,18 @@
       </list>
     </constructor-arg>
   </bean>
-  <bean id="repositoryEntityResolver" class="org.springframework.data.services.repository.JpaRepositoryEntityResolver">
+  <bean id="repositoryEntityResolver"
+        class="org.springframework.data.services.repository.jpa.JpaRepositoryEntityResolver">
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
     <constructor-arg ref="conversionService"/>
+    <constructor-arg ref="transactionTemplate"/>
+  </bean>
+  <bean id="repositoryEntityLinkAwareResolver"
+        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+    <constructor-arg ref="transactionTemplate"/>
   </bean>
 
   <!-- The Exporter -->
@@ -39,6 +51,7 @@
       <list>
         <ref bean="repositoryResolver"/>
         <ref bean="repositoryEntityResolver"/>
+        <ref bean="repositoryEntityLinkAwareResolver"/>
         <bean class="org.springframework.data.services.web.exporter.QueryStringPropertyResolver">
           <constructor-arg value="p"/>
         </bean>
@@ -51,7 +64,10 @@
     <property name="defaultContentType" value="application/json"/>
     <property name="defaultViews">
       <list>
-        <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/>
+        <!--bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/-->
+        <bean class="org.springframework.data.services.web.JsonView">
+          <constructor-arg value="application/x-spring-data+json"/>
+        </bean>
       </list>
     </property>
   </bean>
