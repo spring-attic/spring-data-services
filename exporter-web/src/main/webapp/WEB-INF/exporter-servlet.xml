@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+  <tx:annotation-driven/>
 
   <!-- Spring MVC >=3.1 -->
   <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
@@ -45,7 +49,7 @@
   </bean>
 
   <!-- The Exporter -->
-  <bean class="org.springframework.data.services.web.exporter.ResourceExporterController">
+  <bean class="org.springframework.data.services.web.exporter.SimpleResourceExporterController">
     <property name="baseUri" ref="baseUri"/>
     <property name="readResolvers">
       <list>

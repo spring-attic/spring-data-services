@@ -2,3 +2,4 @@
 exporter-2012-*
 .gradle
 *.iws
+build/
