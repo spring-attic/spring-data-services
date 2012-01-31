@@ -3,7 +3,6 @@ package org.springframework.data.services.repository.jpa;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,16 +18,11 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.services.Handler;
 import org.springframework.data.services.Link;
 import org.springframework.data.services.Resolver;
 import org.springframework.data.services.SimpleLink;
 import org.springframework.data.services.util.UriUtils;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
@@ -38,7 +32,6 @@ public class JpaEntityLinkAwareResolver implements Resolver {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private URI baseUri;
-  private TransactionTemplate transactionTemplate;
   private EntityManager entityManager;
   private Metamodel metamodel;
   private JpaRepositoryMetadata repositoryMetadata;
@@ -50,11 +43,9 @@ public class JpaEntityLinkAwareResolver implements Resolver {
       });
 
   public JpaEntityLinkAwareResolver(URI baseUri,
-                                    JpaRepositoryMetadata repositoryMetadata,
-                                    TransactionTemplate transactionTemplate) {
+                                    JpaRepositoryMetadata repositoryMetadata) {
     this.baseUri = baseUri;
     this.repositoryMetadata = repositoryMetadata;
-    this.transactionTemplate = transactionTemplate;
   }
 
   @PersistenceContext
@@ -85,22 +76,10 @@ public class JpaEntityLinkAwareResolver implements Resolver {
       metadata.doWithLinked(new Handler<Attribute>() {
         @Override public void handle(Attribute attr) {
           final String name = attr.getName();
-          final Object val = metadata.get(name, target);
-          if (attr.isCollection()) {
-            transactionTemplate.execute(new TransactionCallback<Object>() {
-              @Override public Object doInTransaction(TransactionStatus status) {
-                try {
-                  for (Object o : (Collection) val) {
-                    EntityInformation entityInfo = repositoryMetadata.entityInfoFor(o.getClass());
-                    Link l = new SimpleLink(name, UriUtils.merge(uri, new URI(entityInfo.getId(o).toString())));
-                    links.add(l);
-                  }
-                } catch (URISyntaxException e) {
-                  throw new IllegalStateException(e);
-                }
-                return null;
-              }
-            });
+          try {
+            links.add(new SimpleLink(name, UriUtils.merge(uri, new URI(name))));
+          } catch (URISyntaxException e) {
+            throw new IllegalStateException(e);
           }
         }
       });
@@ -113,16 +92,6 @@ public class JpaEntityLinkAwareResolver implements Resolver {
     }
 
     return model;
-  }
-
-  @SuppressWarnings({"unchecked"})
-  private List<Link> links(Map<String, Object> model) {
-    List<Link> links = (List<Link>) model.get(Link.LINKS);
-    if (null == links) {
-      links = new ArrayList<Link>();
-      model.put(Link.LINKS, links);
-    }
-    return links;
   }
 
 }

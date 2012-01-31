@@ -30,6 +30,7 @@
   <bean class="org.springframework.data.services.web.exporter.test.PersonLoader">
     <property name="personRepository" ref="personRepository"/>
     <property name="profileRepository" ref="profileRepository"/>
+    <property name="addressRepository" ref="addressRepository"/>
   </bean>
 
 </beans>

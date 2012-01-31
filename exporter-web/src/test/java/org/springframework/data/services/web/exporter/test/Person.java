@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
@@ -16,14 +17,18 @@ public class Person {
   @GeneratedValue
   private Long id;
   private String name;
+  @OneToOne
+  private Address address;
   @OneToMany
   private List<Profile> profiles;
 
   public Person() {
   }
 
-  public Person(String name) {
+  public Person(String name, Address address, List<Profile> profiles) {
     this.name = name;
+    this.address = address;
+    this.profiles = profiles;
   }
 
   public String getName() {

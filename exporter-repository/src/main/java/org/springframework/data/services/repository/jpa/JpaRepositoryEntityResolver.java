@@ -9,10 +9,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.services.Resolver;
 import org.springframework.data.services.util.UriUtils;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -22,17 +18,14 @@ public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
 
   private JpaRepositoryMetadata repositoryMetadata;
   private ConversionService conversionService;
-  private TransactionTemplate transactionTemplate;
   private URI baseUri;
 
   public JpaRepositoryEntityResolver(URI baseUri,
                                      JpaRepositoryMetadata repositoryMetadata,
-                                     ConversionService conversionService,
-                                     TransactionTemplate transactionTemplate) {
+                                     ConversionService conversionService) {
     this.baseUri = baseUri;
     this.repositoryMetadata = repositoryMetadata;
     this.conversionService = conversionService;
-    this.transactionTemplate = transactionTemplate;
   }
 
   @Override public boolean supports(URI uri, Object target) {
@@ -66,18 +59,11 @@ public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
     final String sid = uri.getPath();
     final Class<? extends Serializable> idType = entityInfo.getIdType();
 
-    return transactionTemplate.execute(new TransactionCallback<Object>() {
-      @Override public Object doInTransaction(TransactionStatus status) {
-        Object o = repository.findOne(
-            !ClassUtils.isAssignable(idType, String.class)
-                ? conversionService.convert(sid, idType)
-                : sid
-        );
-
-
-        return o;
-      }
-    });
+    return repository.findOne(
+        !ClassUtils.isAssignable(idType, String.class)
+            ? conversionService.convert(sid, idType)
+            : sid
+    );
   }
 
 }

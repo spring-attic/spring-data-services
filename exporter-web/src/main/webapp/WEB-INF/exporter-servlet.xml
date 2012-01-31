@@ -7,13 +7,6 @@
 
   <tx:annotation-driven/>
 
-  <!-- Spring MVC >=3.1 -->
-  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
-  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
-  <bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"/>
-  <bean class="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver"/>
-  <bean class="org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver"/>
-
   <!-- Generic utilities used throughout -->
   <bean id="baseUri" class="java.net.URI">
     <constructor-arg value="http://localhost:8080/data"/>
@@ -39,13 +32,11 @@
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
     <constructor-arg ref="conversionService"/>
-    <constructor-arg ref="transactionTemplate"/>
   </bean>
   <bean id="repositoryEntityLinkAwareResolver"
         class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResolver">
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
-    <constructor-arg ref="transactionTemplate"/>
   </bean>
 
   <!-- The Exporter -->
@@ -75,5 +66,12 @@
       </list>
     </property>
   </bean>
+
+  <!-- Spring MVC >=3.1 -->
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"/>
+  <bean class="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver"/>
+  <bean class="org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver"/>
 
 </beans>

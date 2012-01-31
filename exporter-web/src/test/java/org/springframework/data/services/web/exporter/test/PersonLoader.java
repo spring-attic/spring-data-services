@@ -16,6 +16,7 @@ public class PersonLoader implements ApplicationContextAware, InitializingBean {
   private ApplicationContext applicationContext;
   private PersonRepository personRepository;
   private ProfileRepository profileRepository;
+  private AddressRepository addressRepository;
 
   @Override public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
@@ -37,19 +38,25 @@ public class PersonLoader implements ApplicationContextAware, InitializingBean {
     this.profileRepository = profileRepository;
   }
 
+  public AddressRepository getAddressRepository() {
+    return addressRepository;
+  }
+
+  public void setAddressRepository(AddressRepository addressRepository) {
+    this.addressRepository = addressRepository;
+  }
+
   @Override public void afterPropertiesSet() throws Exception {
-    Person pers1 = new Person("John Doe");
+    Address pers1addr = addressRepository.save(new Address(new String[]{"1234 W. 1st St."}, "Univille", "ST", "12345"));
     List<Profile> pers1profiles = new ArrayList<Profile>();
     pers1profiles.add(profileRepository.save(new Profile("twitter", "#!/johndoe")));
     pers1profiles.add(profileRepository.save(new Profile("facebook", "/johndoe")));
-    pers1.setProfiles(pers1profiles);
-    personRepository.save(pers1);
+    personRepository.save(new Person("John Doe", pers1addr, pers1profiles));
 
-    Person pers2 = new Person("Jane Doe");
+    Address pers2addr = addressRepository.save(new Address(new String[]{"1234 E. 2nd St."}, "Univille", "ST", "12345"));
     List<Profile> pers2profiles = new ArrayList<Profile>();
     pers2profiles.add(profileRepository.save(new Profile("facebook", "/janedoe")));
-    pers2.setProfiles(pers2profiles);
-    personRepository.save(pers2);
+    personRepository.save(new Person("Jane Doe", pers2addr, pers2profiles));
   }
 
 }
