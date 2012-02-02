@@ -49,11 +49,3 @@ class ResolverSpec extends Specification {
   }
 
 }
-
-class SimpleBean {
-  String name
-
-  SimpleBean(String name) {
-    this.name = name
-  }
-}

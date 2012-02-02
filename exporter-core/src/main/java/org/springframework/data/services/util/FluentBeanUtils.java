@@ -2,7 +2,9 @@ package org.springframework.data.services.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -38,6 +40,7 @@ public abstract class FluentBeanUtils {
                           } else if (method.getParameterTypes().length == 1) {
                             meta.setters.put(fname, method);
                           }
+                          meta.fieldNames.add(fname);
                         }
                       }
                     });
@@ -50,7 +53,15 @@ public abstract class FluentBeanUtils {
       }
   );
 
-  private static Object set(String property, Object value, Object bean) {
+  public static Metadata metadata(Class<?> targetType) {
+    try {
+      return metadata.get(targetType);
+    } catch (ExecutionException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public static Object set(String property, Object value, Object bean) {
     if (null == bean) {
       return null;
     }
@@ -71,7 +82,7 @@ public abstract class FluentBeanUtils {
     }
   }
 
-  private static Object get(String property, Object bean) {
+  public static Object get(String property, Object bean) {
     if (null == bean) {
       return null;
     }
@@ -100,9 +111,22 @@ public abstract class FluentBeanUtils {
     }
   }
 
-  private static class Metadata {
+  public static class Metadata {
+    List<String> fieldNames = new ArrayList<String>();
     Map<String, Method> getters = new HashMap<String, Method>();
     Map<String, Method> setters = new HashMap<String, Method>();
+
+    public List<String> fieldNames() {
+      return fieldNames;
+    }
+
+    public Map<String, Method> getters() {
+      return getters;
+    }
+
+    public Map<String, Method> setters() {
+      return setters;
+    }
   }
 
 }

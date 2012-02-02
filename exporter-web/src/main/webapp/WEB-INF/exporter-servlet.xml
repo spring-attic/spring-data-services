@@ -15,6 +15,44 @@
   <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
     <property name="transactionManager" ref="transactionManager"/>
   </bean>
+  <bean id="httpMessageConverters" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+          <property name="supportedMediaTypes">
+            <list>
+              <value>application/json</value>
+              <value>application/x-spring-data+json</value>
+            </list>
+          </property>
+        </bean>
+        <bean class="org.springframework.http.converter.feed.AtomFeedHttpMessageConverter">
+          <property name="supportedMediaTypes">
+            <list>
+              <value>application/xml+atom</value>
+              <value>application/x-spring-data+atom</value>
+            </list>
+          </property>
+        </bean>
+        <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter">
+          <property name="supportedMediaTypes">
+            <list>
+              <value>application/xml</value>
+              <value>application/x-spring-data+xml</value>
+            </list>
+          </property>
+        </bean>
+        <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+          <property name="supportedMediaTypes">
+            <list>
+              <value>text/plain</value>
+              <value>text/uri-list</value>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
 
   <!-- Metadata for JPA Repositories -->
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
@@ -38,19 +76,45 @@
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
   </bean>
+  <bean id="repositoryEntityLinkAwareWriteResolver"
+        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareWriteResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+  </bean>
 
   <!-- The Exporter -->
   <bean class="org.springframework.data.services.web.exporter.SimpleResourceExporterController">
     <property name="baseUri" ref="baseUri"/>
-    <property name="readResolvers">
-      <list>
-        <ref bean="repositoryResolver"/>
-        <ref bean="repositoryEntityResolver"/>
-        <ref bean="repositoryEntityLinkAwareResolver"/>
-        <bean class="org.springframework.data.services.web.exporter.QueryStringPropertyResolver">
-          <constructor-arg value="p"/>
-        </bean>
-      </list>
+    <property name="resourceResolver">
+      <bean class="org.springframework.data.services.DelegatingResolver">
+        <constructor-arg>
+          <list>
+            <ref bean="repositoryResolver"/>
+            <ref bean="repositoryEntityResolver"/>
+            <bean class="org.springframework.data.services.web.exporter.QueryStringPropertyResolver">
+              <constructor-arg value="p"/>
+            </bean>
+          </list>
+        </constructor-arg>
+      </bean>
+    </property>
+    <property name="readResolver">
+      <bean class="org.springframework.data.services.DelegatingResolver">
+        <constructor-arg>
+          <list>
+            <ref bean="repositoryEntityLinkAwareResolver"/>
+          </list>
+        </constructor-arg>
+      </bean>
+    </property>
+    <property name="writeResolver">
+      <bean class="org.springframework.data.services.DelegatingResolver">
+        <constructor-arg>
+          <list>
+            <ref bean="repositoryEntityLinkAwareWriteResolver"/>
+          </list>
+        </constructor-arg>
+      </bean>
     </property>
   </bean>
 
@@ -66,6 +130,7 @@
       </list>
     </property>
   </bean>
+
 
   <!-- Spring MVC >=3.1 -->
   <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.services.Handler;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -12,6 +13,15 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
 public abstract class UriUtils {
+
+  public static <V> V foreach(URI baseUri, URI uri, Handler<URI, V> handler) {
+    List<URI> uris = explode(baseUri, uri);
+    V v = null;
+    for (URI u : uris) {
+      v = handler.handle(u);
+    }
+    return v;
+  }
 
   public static List<URI> explode(URI baseUri, URI uri) {
     List<URI> uris = new ArrayList<URI>();
@@ -91,6 +101,11 @@ public abstract class UriUtils {
     } else {
       return -1;
     }
+  }
+
+  public static URI tail(URI baseUri, URI uri) {
+    List<URI> uris = explode(baseUri, uri);
+    return uris.get(Math.max(uris.size() - 1, 0));
   }
 
 }

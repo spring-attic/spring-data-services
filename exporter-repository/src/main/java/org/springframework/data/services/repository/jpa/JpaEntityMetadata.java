@@ -88,22 +88,26 @@ public class JpaEntityMetadata {
     return get(versionAttribute.getName(), target);
   }
 
-  public void doWithEmbedded(Handler<Attribute> handler) {
+  public <V> V doWithEmbedded(Handler<Attribute, V> handler) {
     if (null == handler) {
-      return;
+      return null;
     }
+    V v = null;
     for (Attribute attr : embeddedAttributes.values()) {
-      handler.handle(attr);
+      v = handler.handle(attr);
     }
+    return v;
   }
 
-  public void doWithLinked(Handler<Attribute> handler) {
+  public <V> V doWithLinked(Handler<Attribute, V> handler) {
     if (null == handler) {
-      return;
+      return null;
     }
+    V v = null;
     for (Attribute attr : linkedAttributes.values()) {
-      handler.handle(attr);
+      v = handler.handle(attr);
     }
+    return v;
   }
 
   public Object get(String name, Object target) {

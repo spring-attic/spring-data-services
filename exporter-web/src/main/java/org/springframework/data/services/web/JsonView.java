@@ -5,15 +5,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.DeserializerFactory;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.deser.BeanDeserializerFactory;
-import org.codehaus.jackson.map.deser.StdDeserializerProvider;
-import org.codehaus.jackson.map.module.SimpleDeserializers;
 import org.codehaus.jackson.map.ser.CustomSerializerFactory;
 import org.springframework.data.services.SimpleLink;
 import org.springframework.data.services.util.FluentBeanSerializer;
-import org.springframework.data.services.util.SimpleLinkDeserializer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.view.AbstractView;
@@ -27,16 +22,9 @@ public class JsonView extends AbstractView {
   private ObjectMapper mapper = new ObjectMapper();
 
   {
-    SimpleDeserializers desers = new SimpleDeserializers();
-    desers.addDeserializer(SimpleLink.class, new SimpleLinkDeserializer(SimpleLink.class));
-    DeserializerFactory deserFactory = new BeanDeserializerFactory(new BeanDeserializerFactory.ConfigImpl()).
-        withAdditionalDeserializers(desers);
-
     CustomSerializerFactory customSerializerFactory = new CustomSerializerFactory();
     customSerializerFactory.addSpecificMapping(SimpleLink.class, new FluentBeanSerializer(SimpleLink.class));
-
     mapper.setSerializerFactory(customSerializerFactory);
-    mapper.setDeserializerProvider(new StdDeserializerProvider(deserFactory));
   }
 
   public JsonView(String mediaType) {
@@ -63,10 +51,14 @@ public class JsonView extends AbstractView {
     response.setContentType(contentType);
 
     Object resource = model.get("resource");
-    ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    mapper.writerWithDefaultPrettyPrinter().writeValue(bout, resource);
+    if (null != resource) {
+      ByteArrayOutputStream bout = new ByteArrayOutputStream();
+      mapper.writerWithDefaultPrettyPrinter().writeValue(bout, resource);
 
-    response.getOutputStream().write(bout.toByteArray());
+      response.getOutputStream().write(bout.toByteArray());
+    } else {
+      response.setContentLength(0);
+    }
   }
 
 

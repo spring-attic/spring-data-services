@@ -7,55 +7,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.services.Handler;
 import org.springframework.data.services.Link;
-import org.springframework.data.services.Resolver;
 import org.springframework.data.services.SimpleLink;
 import org.springframework.data.services.util.UriUtils;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public class JpaEntityLinkAwareResolver implements Resolver {
+public class JpaEntityLinkAwareResolver extends AbstractJpaEntityResolver {
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
-
-  private URI baseUri;
-  private EntityManager entityManager;
-  private Metamodel metamodel;
-  private JpaRepositoryMetadata repositoryMetadata;
-  private Cache<EntityType, JpaEntityMetadata> metadataCache = CacheBuilder.newBuilder().
-      build(new CacheLoader<EntityType, JpaEntityMetadata>() {
-        @Override public JpaEntityMetadata load(EntityType key) throws Exception {
-          return new JpaEntityMetadata(key, repositoryMetadata);
-        }
-      });
-
-  public JpaEntityLinkAwareResolver(URI baseUri,
-                                    JpaRepositoryMetadata repositoryMetadata) {
-    this.baseUri = baseUri;
-    this.repositoryMetadata = repositoryMetadata;
-  }
-
-  @PersistenceContext
-  public void setEntityManager(EntityManager entityManager) {
-    this.entityManager = entityManager;
-    this.metamodel = entityManager.getMetamodel();
-  }
-
-  @Override public boolean supports(URI uri, Object target) {
-    return null != target && null != metamodel.entity(target.getClass());
+  public JpaEntityLinkAwareResolver(URI baseUri, JpaRepositoryMetadata repositoryMetadata) {
+    super(baseUri, repositoryMetadata);
   }
 
   @SuppressWarnings({"unchecked"})
@@ -66,23 +32,26 @@ public class JpaEntityLinkAwareResolver implements Resolver {
     EntityType entityType = metamodel.entity(target.getClass());
     try {
       final JpaEntityMetadata metadata = metadataCache.get(entityType);
-      metadata.doWithEmbedded(new Handler<Attribute>() {
-        @Override public void handle(Attribute attr) {
-          String name = attr.getName();
-          Object val = metadata.get(name, target);
-          model.put(name, val);
-        }
-      });
-      metadata.doWithLinked(new Handler<Attribute>() {
-        @Override public void handle(Attribute attr) {
-          final String name = attr.getName();
-          try {
-            links.add(new SimpleLink(name, UriUtils.merge(uri, new URI(name))));
-          } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-          }
-        }
-      });
+      metadata.
+          doWithEmbedded(new Handler<Attribute, JpaEntityMetadata>() {
+            @Override public JpaEntityMetadata handle(Attribute attr) {
+              String name = attr.getName();
+              Object val = metadata.get(name, target);
+              model.put(name, val);
+              return metadata;
+            }
+          }).
+          doWithLinked(new Handler<Attribute, JpaEntityMetadata>() {
+            @Override public JpaEntityMetadata handle(Attribute attr) {
+              final String name = attr.getName();
+              try {
+                links.add(new SimpleLink(name, UriUtils.merge(uri, new URI(name))));
+              } catch (URISyntaxException e) {
+                throw new IllegalStateException(e);
+              }
+              return metadata;
+            }
+          });
     } catch (ExecutionException e) {
       throw new IllegalStateException(e);
     }

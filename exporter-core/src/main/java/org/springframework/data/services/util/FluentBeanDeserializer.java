@@ -1,44 +1,34 @@
 package org.springframework.data.services.util;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.deser.std.StdDeserializer;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
 public class FluentBeanDeserializer extends StdDeserializer {
 
-  private Map<String, Method> setters = new HashMap<String, Method>();
+  private ConversionService conversionService;
+  private FluentBeanUtils.Metadata beanMeta;
 
   @SuppressWarnings({"unchecked"})
-  public FluentBeanDeserializer(final Class<?> valueClass) {
+  public FluentBeanDeserializer(final Class<?> valueClass, ConversionService conversionService) {
     super(valueClass);
-    ReflectionUtils.doWithFields(valueClass, new ReflectionUtils.FieldCallback() {
-      @Override public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-        final String fname = field.getName();
-        ReflectionUtils.doWithMethods(valueClass, new ReflectionUtils.MethodCallback() {
-          @Override public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-            String mname = method.getName();
-            Class<?>[] paramTypes = method.getParameterTypes();
-            if (mname.equals(fname)) {
-              if (paramTypes.length == 1) {
-                setters.put(fname, method);
-              }
-            }
-          }
-        });
-      }
-    });
+    this.conversionService = conversionService;
+    this.beanMeta = FluentBeanUtils.metadata(valueClass);
+
+    if (!FluentBeanUtils.isFluentBean(valueClass)) {
+      throw new IllegalArgumentException("Class of type " + valueClass + " is not a FluentBean");
+    }
   }
 
   @Override
@@ -50,7 +40,50 @@ public class FluentBeanDeserializer extends StdDeserializer {
       throw ctxt.mappingException(_valueClass);
     }
 
-    return null;
+    Object bean;
+    try {
+      bean = _valueClass.newInstance();
+    } catch (InstantiationException e) {
+      throw new IllegalStateException(e);
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
+
+    while (jp.nextToken() != JsonToken.END_OBJECT) {
+      String name = jp.getCurrentName();
+      Method setter = beanMeta.setters().get(name);
+
+      Object obj;
+      if (null != setter) {
+        Class<?> targetType = setter.getParameterTypes()[0];
+        if (ClassUtils.isAssignable(targetType, Long.class)) {
+          obj = jp.nextLongValue(-1);
+        } else if (ClassUtils.isAssignable(targetType, Integer.class)) {
+          obj = jp.nextIntValue(-1);
+        } else if (ClassUtils.isAssignable(targetType, Boolean.class)) {
+          obj = jp.nextBooleanValue();
+        } else {
+          obj = jp.nextTextValue();
+        }
+
+        if (null != obj) {
+          if (!ClassUtils.isAssignable(obj.getClass(), targetType)) {
+            obj = conversionService.convert(obj, targetType);
+          }
+
+          try {
+            setter.invoke(bean, obj);
+          } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+          } catch (InvocationTargetException e) {
+            throw new IllegalStateException(e);
+          }
+        }
+      }
+
+    }
+
+    return bean;
   }
 
 }
