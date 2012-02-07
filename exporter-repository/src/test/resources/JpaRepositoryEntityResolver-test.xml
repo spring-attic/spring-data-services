@@ -44,7 +44,7 @@
     <constructor-arg ref="transactionTemplate"/>
   </bean>
 
-  <bean class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResolver">
+  <bean class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResourceHandler">
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
     <constructor-arg ref="transactionTemplate"/>

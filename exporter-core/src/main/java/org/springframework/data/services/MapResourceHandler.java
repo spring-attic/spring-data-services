@@ -1,6 +1,7 @@
 package org.springframework.data.services;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.springframework.data.services.util.BeanUtils;
 import org.springframework.data.services.util.UriUtils;
@@ -8,20 +9,19 @@ import org.springframework.data.services.util.UriUtils;
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public class BeanPropertyResourceHandler extends AbstractResourceHandler {
+public class MapResourceHandler extends AbstractResourceHandler {
 
-  public BeanPropertyResourceHandler(URI baseUri) {
+  public MapResourceHandler(URI baseUri) {
     super(baseUri);
   }
 
   @Override public boolean supports(Resource resource, Object... args) {
-    return BeanUtils.hasProperty(UriUtils.tail(baseUri, resource.uri()).getPath(), resource.target());
+    return BeanUtils.containsType(Map.class, args);
   }
 
   @Override public Resource handle(Resource resource, Object... args) {
     URI tail = UriUtils.tail(baseUri, resource.uri());
-    Object o = BeanUtils.findFirst(tail.getPath(), resource.target());
-    return new SimpleResource(tail, o);
+    return new SimpleResource(tail, ((Map) resource.target()).get(tail.getPath()));
   }
 
 }

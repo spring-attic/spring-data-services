@@ -72,12 +72,12 @@
     <constructor-arg ref="conversionService"/>
   </bean>
   <bean id="repositoryEntityLinkAwareResolver"
-        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResolver">
+        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResourceHandler">
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
   </bean>
   <bean id="repositoryEntityLinkAwareWriteResolver"
-        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareWriteResolver">
+        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareWriteResourceHandler">
     <constructor-arg ref="baseUri"/>
     <constructor-arg ref="jpaRepositoryMetadata"/>
   </bean>

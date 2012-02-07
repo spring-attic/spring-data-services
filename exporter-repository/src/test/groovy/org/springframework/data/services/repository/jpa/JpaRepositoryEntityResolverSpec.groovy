@@ -26,7 +26,7 @@ class JpaRepositoryEntityResolverSpec extends Specification {
   @Autowired
   JpaRepositoryEntityResolver resolver
   @Autowired
-  JpaEntityLinkAwareResolver entityResolver
+  JpaEntityLinkAwareResourceHandler entityResolver
 
   def "resolves an entity using findOne"() {
 

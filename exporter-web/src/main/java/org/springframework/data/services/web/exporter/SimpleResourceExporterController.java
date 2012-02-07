@@ -8,11 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.services.DelegatingResolver;
 import org.springframework.data.services.Handler;
 import org.springframework.data.services.Link;
-import org.springframework.data.services.Resolver;
+import org.springframework.data.services.Resource;
 import org.springframework.data.services.ResourceHandler;
+import org.springframework.data.services.SimpleResource;
 import org.springframework.data.services.util.UriUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,6 @@ public class SimpleResourceExporterController implements ResourceExporterControl
   private ApplicationContext applicationContext;
   private String host;
   private URI baseUri;
-  private Resolver<Link> linkResolver;
   private ResourceHandler resourceHandler;
   private ResourceHandler readHandler;
   private ResourceHandler writeHandler;
@@ -78,15 +77,6 @@ public class SimpleResourceExporterController implements ResourceExporterControl
     return this;
   }
 
-  public Resolver<Link> getLinkResolver() {
-    return linkResolver;
-  }
-
-  public SimpleResourceExporterController setLinkResolver(Resolver<Link> linkResolver) {
-    this.linkResolver = linkResolver;
-    return this;
-  }
-
   @Override public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
   }
@@ -98,9 +88,9 @@ public class SimpleResourceExporterController implements ResourceExporterControl
   @SuppressWarnings({"unchecked"})
   @Override public void get(HttpServletRequest request, Model model) {
     URI requestUri = requestUri(request);
-    Object resource = resolveResource(requestUri);
+    Resource resource = resolveResource(requestUri);
     if (null != resource && null != readHandler) {
-      Object obj = readHandler.handle(requestUri, resource);
+      Object obj = readHandler.handle(resource);
       if (log.isDebugEnabled()) {
         log.debug("Resolved for GET: " + obj);
       }
@@ -115,9 +105,9 @@ public class SimpleResourceExporterController implements ResourceExporterControl
   @SuppressWarnings({"unchecked"})
   public void post(HttpServletRequest request, HttpEntity<byte[]> entity, Model model) {
     URI requestUri = requestUri(request);
-    Object resource = resolveResource(requestUri);
+    Resource resource = resolveResource(requestUri);
     if (null != resource && null != writeHandler) {
-      writeHandler.handle(requestUri, resource, entity);
+      writeHandler.handle(resource, entity);
       if (log.isDebugEnabled()) {
         log.debug("Resolved for POST: " + resource);
         log.debug("Body: " + new String(entity.getBody()).trim());
@@ -138,19 +128,20 @@ public class SimpleResourceExporterController implements ResourceExporterControl
   }
 
   @SuppressWarnings({"unchecked"})
-  private Object resolveResource(URI uri) {
+  private Resource resolveResource(URI uri) {
     if (log.isDebugEnabled()) {
       log.debug("Resolving URI " + uri);
     }
-    return UriUtils.foreach(baseUri, uri, new Handler<URI, Object>() {
+    return UriUtils.foreach(baseUri, uri, new Handler<URI, Resource>() {
       Object o = null;
 
-      @Override public Object handle(URI u) {
-        o = resourceHandler.handle(u, o);
+      @Override public Resource handle(URI u) {
+        Resource res = new SimpleResource(u, o);
+        o = resourceHandler.handle(res);
         if (log.isDebugEnabled()) {
           log.debug("  ...resolved o=" + o + " from " + u);
         }
-        return o;
+        return res;
       }
     });
   }

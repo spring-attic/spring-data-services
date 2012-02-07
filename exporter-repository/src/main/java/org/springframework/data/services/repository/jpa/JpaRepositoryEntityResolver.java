@@ -7,14 +7,13 @@ import java.util.List;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.core.EntityInformation;
-import org.springframework.data.services.Resolver;
 import org.springframework.data.services.util.UriUtils;
 import org.springframework.util.ClassUtils;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
+public class JpaRepositoryEntityResolver  {
 
   private JpaRepositoryMetadata repositoryMetadata;
   private ConversionService conversionService;
@@ -28,7 +27,7 @@ public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
     this.conversionService = conversionService;
   }
 
-  @Override public boolean supports(URI uri, Object target) {
+  public boolean supports(URI uri, Object target) {
     if (null == target) {
       return false;
     }
@@ -48,7 +47,7 @@ public class JpaRepositoryEntityResolver implements Resolver<CrudRepository> {
   }
 
   @SuppressWarnings({"unchecked"})
-  @Override public Object resolve(URI uri, final CrudRepository repository) {
+  public Object resolve(URI uri, final CrudRepository repository) {
     EntityInformation entityInfo = repositoryMetadata.entityInfoFor(repository);
     if (uri.isAbsolute()) {
       List<URI> uris = UriUtils.explode(baseUri, uri);

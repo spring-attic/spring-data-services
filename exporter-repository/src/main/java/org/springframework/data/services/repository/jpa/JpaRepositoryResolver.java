@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.services.Resolver;
 import org.springframework.data.services.util.UriUtils;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public class JpaRepositoryResolver implements Resolver {
+public class JpaRepositoryResolver {
 
   private URI baseUri;
   private List<JpaRepositoryMetadata> metadata = new ArrayList<JpaRepositoryMetadata>();
@@ -34,14 +33,14 @@ public class JpaRepositoryResolver implements Resolver {
     return this;
   }
 
-  @Override public boolean supports(URI uri, Object target) {
+  public boolean supports(URI uri, Object target) {
     if (null == target) {
       return null != findRepositoryFor(getRelativeUri(uri));
     }
     return false;
   }
 
-  @Override public Object resolve(URI uri, Object target) {
+  public Object resolve(URI uri, Object target) {
     if (uri.isAbsolute()) {
       uri = getRelativeUri(uri);
     }

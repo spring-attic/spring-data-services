@@ -11,12 +11,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.services.Resolver;
+import org.springframework.data.services.Resource;
+import org.springframework.data.services.ResourceHandler;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public abstract class AbstractJpaEntityResolver implements Resolver {
+public abstract class AbstractJpaEntityResourceHandler implements ResourceHandler {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -31,7 +32,7 @@ public abstract class AbstractJpaEntityResolver implements Resolver {
         }
       });
 
-  protected AbstractJpaEntityResolver(URI baseUri, JpaRepositoryMetadata repositoryMetadata) {
+  protected AbstractJpaEntityResourceHandler(URI baseUri, JpaRepositoryMetadata repositoryMetadata) {
     this.baseUri = baseUri;
     this.repositoryMetadata = repositoryMetadata;
   }
@@ -42,8 +43,8 @@ public abstract class AbstractJpaEntityResolver implements Resolver {
     this.metamodel = entityManager.getMetamodel();
   }
 
-  @Override public boolean supports(URI uri, Object target) {
-    return null != target && null != metamodel.entity(target.getClass());
+  @Override public boolean supports(Resource resource, Object... args) {
+    return null != resource.target();
   }
 
 }

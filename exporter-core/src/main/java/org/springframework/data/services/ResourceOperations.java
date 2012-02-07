@@ -8,12 +8,12 @@ import java.util.Map;
  */
 public interface ResourceOperations {
 
-  Resource create(Resource resource, Map<String, Object> model);
+  <T> Resource<T> create(Resource<Map<String, Object>> resource);
 
-  Resource retrieve(URI uri);
+  <T> Resource<T> retrieve(URI uri);
 
-  Resource update(Resource resource, Map<String, Object> model);
+  <T> Resource<T> update(Resource<Map<String, Object>> resource);
 
-  Resource delete(URI uri);
+  <T> Resource<T> delete(URI uri);
 
 }

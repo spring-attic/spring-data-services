@@ -13,6 +13,7 @@ class ResourceHandlerSpec extends Specification {
     def baseUri = new URI("http://localhost:8080/base")
     def handler = new DelegatingResourceHandler([
                                                     new ListResourceHandler(baseUri),
+                                                    new MapResourceHandler(baseUri),
                                                     new BeanPropertyResourceHandler(baseUri)
                                                 ])
     def list = ["first", "second", "third"]
@@ -20,9 +21,9 @@ class ResourceHandlerSpec extends Specification {
     def bean = new SimpleBean("third")
 
     when:
-    def first = handler.handle(new URI("simpleBean/1"), list)
-    def second = handler.handle(new URI("simpleBean/second"), map)
-    def name = handler.handle(new URI("simpleBean/name"), bean)
+    def first = handler.handle(new SimpleResource(new URI("simpleBean/0")), list)
+    def second = handler.handle(new SimpleResource(new URI("simpleBean/second")), map)
+    def name = handler.handle(new SimpleResource(new URI("simpleBean/name")), bean)
 
     then:
     first == "first"
