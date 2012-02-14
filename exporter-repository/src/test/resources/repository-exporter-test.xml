@@ -37,19 +37,6 @@
     <property name="transactionManager" ref="transactionManager"/>
   </bean>
 
-  <bean class="org.springframework.data.services.repository.jpa.JpaRepositoryEntityResolver">
-    <constructor-arg ref="baseUri"/>
-    <constructor-arg ref="jpaRepositoryMetadata"/>
-    <constructor-arg ref="conversionService"/>
-    <constructor-arg ref="transactionTemplate"/>
-  </bean>
-
-  <bean class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResourceHandler">
-    <constructor-arg ref="baseUri"/>
-    <constructor-arg ref="jpaRepositoryMetadata"/>
-    <constructor-arg ref="transactionTemplate"/>
-  </bean>
-
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
 </beans>

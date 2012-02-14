@@ -57,73 +57,25 @@
   <!-- Metadata for JPA Repositories -->
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
   <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata"/>
-  <bean id="repositoryResolver" class="org.springframework.data.services.repository.jpa.JpaRepositoryResolver">
-    <constructor-arg ref="baseUri"/>
-    <constructor-arg>
-      <list>
-        <ref bean="jpaRepositoryMetadata"/>
-      </list>
-    </constructor-arg>
-  </bean>
-  <bean id="repositoryEntityResolver"
-        class="org.springframework.data.services.repository.jpa.JpaRepositoryEntityResolver">
-    <constructor-arg ref="baseUri"/>
-    <constructor-arg ref="jpaRepositoryMetadata"/>
-    <constructor-arg ref="conversionService"/>
-  </bean>
-  <bean id="repositoryEntityLinkAwareResolver"
-        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareResourceHandler">
-    <constructor-arg ref="baseUri"/>
-    <constructor-arg ref="jpaRepositoryMetadata"/>
-  </bean>
-  <bean id="repositoryEntityLinkAwareWriteResolver"
-        class="org.springframework.data.services.repository.jpa.JpaEntityLinkAwareWriteResourceHandler">
-    <constructor-arg ref="baseUri"/>
-    <constructor-arg ref="jpaRepositoryMetadata"/>
-  </bean>
 
   <!-- The Exporter -->
-  <bean class="org.springframework.data.services.web.exporter.SimpleResourceExporterController">
+  <bean class="org.springframework.data.services.web.exporter.RepositoryExporterController">
     <property name="baseUri" ref="baseUri"/>
-    <property name="resourceResolver">
-      <bean class="org.springframework.data.services.DelegatingResolver">
-        <constructor-arg>
-          <list>
-            <ref bean="repositoryResolver"/>
-            <ref bean="repositoryEntityResolver"/>
-            <bean class="org.springframework.data.services.web.exporter.QueryStringPropertyResolver">
-              <constructor-arg value="p"/>
-            </bean>
-          </list>
-        </constructor-arg>
-      </bean>
-    </property>
-    <property name="readResolver">
-      <bean class="org.springframework.data.services.DelegatingResolver">
-        <constructor-arg>
-          <list>
-            <ref bean="repositoryEntityLinkAwareResolver"/>
-          </list>
-        </constructor-arg>
-      </bean>
-    </property>
-    <property name="writeResolver">
-      <bean class="org.springframework.data.services.DelegatingResolver">
-        <constructor-arg>
-          <list>
-            <ref bean="repositoryEntityLinkAwareWriteResolver"/>
-          </list>
-        </constructor-arg>
-      </bean>
-    </property>
+    <property name="repositoryMetadata" ref="jpaRepositoryMetadata"/>
   </bean>
 
   <!-- Handle rendering in different representations -->
   <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-    <property name="defaultContentType" value="application/json"/>
+    <property name="mediaTypes">
+      <map>
+        <entry key="json" value="application/x-spring-data+json"/>
+        <entry key="uri-list" value="test/uri-list"/>
+      </map>
+    </property>
     <property name="defaultViews">
       <list>
         <!--bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/-->
+        <bean class="org.springframework.data.services.web.UriListView"/>
         <bean class="org.springframework.data.services.web.JsonView">
           <constructor-arg value="application/x-spring-data+json"/>
         </bean>
@@ -131,10 +83,15 @@
     </property>
   </bean>
 
-
   <!-- Spring MVC >=3.1 -->
   <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
-  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+    <property name="customArgumentResolvers">
+      <list>
+        <bean class="org.springframework.data.services.web.exporter.ServerHttpRequestMethodArgumentResolver"/>
+      </list>
+    </property>
+  </bean>
   <bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"/>
   <bean class="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver"/>
   <bean class="org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver"/>

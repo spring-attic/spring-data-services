@@ -14,6 +14,14 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public abstract class UriUtils {
 
+  public static URI parseUri(String uri) {
+    try {
+      return new URI(uri);
+    } catch (URISyntaxException e) {
+      return null;
+    }
+  }
+
   public static <V> V foreach(URI baseUri, URI uri, Handler<URI, V> handler) {
     List<URI> uris = explode(baseUri, uri);
     V v = null;

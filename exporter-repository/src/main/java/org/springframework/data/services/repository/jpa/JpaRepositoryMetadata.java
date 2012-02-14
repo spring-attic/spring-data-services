@@ -2,9 +2,15 @@ package org.springframework.data.services.repository.jpa;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.aop.target.SingletonTargetSource;
@@ -24,6 +30,14 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
 
   private ApplicationContext applicationContext;
   private Map<Class<?>, RepositoryCacheEntry> repositories = new HashMap<Class<?>, RepositoryCacheEntry>();
+  private EntityManager entityManager;
+  private Metamodel metamodel;
+
+  @PersistenceContext
+  public void setEntityManager(EntityManager entityManager) {
+    this.entityManager = entityManager;
+    this.metamodel = entityManager.getMetamodel();
+  }
 
   public CrudRepository repositoryFor(String name) {
     for (Map.Entry<Class<?>, RepositoryCacheEntry> entry : repositories.entrySet()) {
@@ -50,6 +64,10 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
     return null;
   }
 
+  public <T> EntityType<T> entityTypeFor(Class<T> domainClass) {
+    return metamodel.entity(domainClass);
+  }
+
   public EntityInformation entityInfoFor(CrudRepository repository) {
     for (Map.Entry<Class<?>, RepositoryCacheEntry> entry : repositories.entrySet()) {
       if (entry.getValue().repository == repository) {
@@ -57,6 +75,14 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
       }
     }
     return null;
+  }
+
+  public <T> JpaEntityMetadata entityMetadataFor(Class<T> domainClass) {
+    RepositoryCacheEntry entry = repositories.get(domainClass);
+    if (null == entry.entityMetadata) {
+      entry.entityMetadata = new JpaEntityMetadata(metamodel.entity(domainClass), this);
+    }
+    return entry.entityMetadata;
   }
 
   public String repositoryNameFor(Class<?> domainClass) {
@@ -80,6 +106,14 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
     this.applicationContext = applicationContext;
   }
 
+  public List<String> repositoryNames() {
+    List<String> names = new ArrayList<String>();
+    for (Map.Entry<Class<?>, RepositoryCacheEntry> entry : repositories.entrySet()) {
+      names.add(entry.getValue().name);
+    }
+    return names;
+  }
+
   public void setRepositories(Collection<CrudRepository> repositories) {
     for (CrudRepository repository : repositories) {
       Class<?> repoClass = AopUtils.getTargetClass(repository);
@@ -92,7 +126,7 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
         EntityInformation entityInfo = (EntityInformation) infoField.get(targetRepo.getTarget());
         Class<?>[] intfs = repository.getClass().getInterfaces();
         String name = StringUtils.uncapitalize(intfs[0].getSimpleName().replaceAll("Repository", ""));
-        this.repositories.put(entityInfo.getJavaType(), new RepositoryCacheEntry(name, repository, entityInfo));
+        this.repositories.put(entityInfo.getJavaType(), new RepositoryCacheEntry(name, repository, entityInfo, null));
       } catch (Throwable t) {
         throw new IllegalStateException(t);
       }
@@ -114,11 +148,16 @@ public class JpaRepositoryMetadata implements InitializingBean, ApplicationConte
     String name;
     CrudRepository repository;
     EntityInformation entityInfo;
+    JpaEntityMetadata entityMetadata;
 
-    private RepositoryCacheEntry(String name, CrudRepository repository, EntityInformation entityInfo) {
+    private RepositoryCacheEntry(String name,
+                                 CrudRepository repository,
+                                 EntityInformation entityInfo,
+                                 JpaEntityMetadata entityMetadata) {
       this.name = name;
       this.repository = repository;
       this.entityInfo = entityInfo;
+      this.entityMetadata = entityMetadata;
     }
   }
 
