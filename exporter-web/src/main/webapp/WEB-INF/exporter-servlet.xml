@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
   <tx:annotation-driven/>
+  <context:component-scan base-package="org.springframework.data.services.web.exporter"/>
 
   <!-- Generic utilities used throughout -->
   <bean id="baseUri" class="java.net.URI">
@@ -56,13 +59,22 @@
 
   <!-- Metadata for JPA Repositories -->
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
-  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata"/>
+  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata">
+    <property name="repositories">
+      <list>
+        <!--ref bean="addressRepository"/-->
+        <ref bean="personRepository"/>
+        <ref bean="profileRepository"/>
+      </list>
+    </property>
+  </bean>
 
-  <!-- The Exporter -->
+  <!-- The Exporter
   <bean class="org.springframework.data.services.web.exporter.RepositoryExporterController">
     <property name="baseUri" ref="baseUri"/>
     <property name="repositoryMetadata" ref="jpaRepositoryMetadata"/>
   </bean>
+   -->
 
   <!-- Handle rendering in different representations -->
   <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
@@ -74,11 +86,10 @@
     </property>
     <property name="defaultViews">
       <list>
-        <!--bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"/-->
-        <bean class="org.springframework.data.services.web.UriListView"/>
         <bean class="org.springframework.data.services.web.JsonView">
           <constructor-arg value="application/x-spring-data+json"/>
         </bean>
+        <bean class="org.springframework.data.services.web.UriListView"/>
       </list>
     </property>
   </bean>

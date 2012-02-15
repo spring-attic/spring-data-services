@@ -33,6 +33,9 @@ public abstract class UriUtils {
 
   public static List<URI> explode(URI baseUri, URI uri) {
     List<URI> uris = new ArrayList<URI>();
+    if (!StringUtils.hasText(uri.getPath())) {
+      return uris;
+    }
     URI relativeUri = baseUri.relativize(uri);
     try {
       for (String part : relativeUri.getPath().split("/")) {
@@ -102,12 +105,12 @@ public abstract class UriUtils {
     return ub.build().toUri();
   }
 
-  public static int fragmentToInt(URI uri) {
-    String s = uri.getFragment();
-    if (null != s) {
-      return Integer.parseInt(s);
+  public static String path(URI uri) {
+    String s = uri.getPath();
+    if (s.endsWith("/")) {
+      return s.substring(0, s.length() - 1);
     } else {
-      return -1;
+      return s;
     }
   }
 

@@ -43,8 +43,7 @@ public class JpaEntityMetadata {
           idAttribute = attr;
         } else if (sattr.isVersion()) {
           versionAttribute = attr;
-        } else if (sattr.isAssociation()
-            && null != repositoryMetadata.repositoryFor(attr.getJavaType())) {
+        } else if (null != repositoryMetadata.repositoryFor(attr.getJavaType())) {
           linkedAttributes.put(name, attr);
         } else {
           embeddedAttributes.put(name, attr);
@@ -94,6 +93,18 @@ public class JpaEntityMetadata {
     }
     V v = null;
     for (Attribute attr : embeddedAttributes.values()) {
+      v = handler.handle(attr);
+    }
+    return v;
+  }
+
+  public <V> V doWithLinked(String name, Handler<Attribute, V> handler) {
+    if (null == handler) {
+      return null;
+    }
+    V v = null;
+    Attribute attr = linkedAttributes.get(name);
+    if (null != attr) {
       v = handler.handle(attr);
     }
     return v;
