@@ -1,5 +1,6 @@
 package org.springframework.data.services.repository.jpa;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +64,10 @@ public class JpaEntityMetadata {
     this.versionAttribute = versionAttribute;
   }
 
+  public Class<?> targetType() {
+    return targetType;
+  }
+
   public Map<String, Attribute> embeddedAttributes() {
     return Collections.unmodifiableMap(embeddedAttributes);
   }
@@ -77,6 +82,10 @@ public class JpaEntityMetadata {
 
   public Attribute versionAttribute() {
     return versionAttribute;
+  }
+
+  public void id(Serializable id, Object target) {
+    set(idAttribute.getName(), id, target);
   }
 
   public Object id(Object target) {
@@ -124,6 +133,14 @@ public class JpaEntityMetadata {
   public Object get(String name, Object target) {
     try {
       return fields.get(name).get(target);
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public void set(String name, Object arg, Object target) {
+    try {
+      fields.get(name).set(target, arg);
     } catch (IllegalAccessException e) {
       throw new IllegalStateException(e);
     }

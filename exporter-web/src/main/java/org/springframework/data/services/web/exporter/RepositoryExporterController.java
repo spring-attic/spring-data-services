@@ -1,20 +1,24 @@
 package org.springframework.data.services.web.exporter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -26,38 +30,38 @@ import org.springframework.data.services.SimpleLink;
 import org.springframework.data.services.repository.jpa.JpaEntityMetadata;
 import org.springframework.data.services.repository.jpa.JpaRepositoryMetadata;
 import org.springframework.data.services.util.UriUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpInputMessage;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
 @Controller
-public class RepositoryExporterController implements InitializingBean {
+public class RepositoryExporterController implements ResourceExporterController {
 
   public static final String STATUS = "status";
   public static final String HEADERS = "headers";
   public static final String RESOURCE = "resource";
+  public static final String SELF = "self";
   public static final String LINKS = "_links";
-  public static final int LIST_REPOS = 0;
-  public static final int LIST_ENTITIES = 1;
-  public static final int HAS_ID = 2;
-  public static final int LIST_LINKS = 3;
-  public static final int HAS_CHILD_ID = 4;
+
+  public static final int HAS_RESOURCE = 1;
+  public static final int HAS_RESOURCE_ID = 2;
+  public static final int HAS_SECOND_LEVEL_RESOURCE = 3;
+  public static final int HAS_SECOND_LEVEL_ID = 4;
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryExporterController.class);
-  private static final MediaType URI_LIST = MediaType.parseMediaType("text/uri-list");
 
   @Autowired
   private URI baseUri;
@@ -66,7 +70,11 @@ public class RepositoryExporterController implements InitializingBean {
   @Autowired
   private ConversionService conversionService;
   @Autowired
-  private TransactionTemplate transactionTemplate;
+  private List<HttpMessageConverter<?>> httpMessageConverters;
+  private MediaType uriListMediaType = MediaType.parseMediaType("text/uri-list");
+  private MediaType jsonMediaType = MediaType.parseMediaType("application/x-spring-data+json");
+  private MediaType atomMediaType = MediaType.parseMediaType("application/x-spring-data+atom");
+  private MediaType jaxbMediaType = MediaType.parseMediaType("application/x-spring-data+jaxb");
 
   public URI getBaseUri() {
     return baseUri;
@@ -119,20 +127,88 @@ public class RepositoryExporterController implements InitializingBean {
     return this;
   }
 
-  public TransactionTemplate getTransactionTemplate() {
-    return transactionTemplate;
+  public List<HttpMessageConverter<?>> getHttpMessageConverters() {
+    return httpMessageConverters;
   }
 
-  public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
-    this.transactionTemplate = transactionTemplate;
+  public void setHttpMessageConverters(List<HttpMessageConverter<?>> httpMessageConverters) {
+    this.httpMessageConverters = httpMessageConverters;
   }
 
-  public TransactionTemplate transactionTemplate() {
-    return transactionTemplate;
+  public List<HttpMessageConverter<?>> httpMessageConverters() {
+    return httpMessageConverters;
   }
 
-  public RepositoryExporterController transactionTemplate(TransactionTemplate transactionTemplate) {
-    this.transactionTemplate = transactionTemplate;
+  public RepositoryExporterController httpMessageConverters(List<HttpMessageConverter<?>> httpMessageConverters) {
+    this.httpMessageConverters = httpMessageConverters;
+    return this;
+  }
+
+  public MediaType getUriListMediaType() {
+    return uriListMediaType;
+  }
+
+  public void setUriListMediaType(MediaType uriListMediaType) {
+    this.uriListMediaType = uriListMediaType;
+  }
+
+  public MediaType uriListMediaType() {
+    return uriListMediaType;
+  }
+
+  public RepositoryExporterController uriListMediaType(MediaType uriListMediaType) {
+    this.uriListMediaType = uriListMediaType;
+    return this;
+  }
+
+  public MediaType getJsonMediaType() {
+    return jsonMediaType;
+  }
+
+  public void setJsonMediaType(MediaType jsonMediaType) {
+    this.jsonMediaType = jsonMediaType;
+  }
+
+  public MediaType jsonMediaType() {
+    return jsonMediaType;
+  }
+
+  public RepositoryExporterController jsonMediaType(MediaType jsonMediaType) {
+    this.jsonMediaType = jsonMediaType;
+    return this;
+  }
+
+  public MediaType getAtomMediaType() {
+    return atomMediaType;
+  }
+
+  public void setAtomMediaType(MediaType atomMediaType) {
+    this.atomMediaType = atomMediaType;
+  }
+
+  public MediaType atomMediaType() {
+    return atomMediaType;
+  }
+
+  public RepositoryExporterController atomMediaType(MediaType atomMediaType) {
+    this.atomMediaType = atomMediaType;
+    return this;
+  }
+
+  public MediaType getJaxbMediaType() {
+    return jaxbMediaType;
+  }
+
+  public void setJaxbMediaType(MediaType jaxbMediaType) {
+    this.jaxbMediaType = jaxbMediaType;
+  }
+
+  public MediaType jaxbMediaType() {
+    return jaxbMediaType;
+  }
+
+  public RepositoryExporterController jaxbMediaType(MediaType jaxbMediaType) {
+    this.jaxbMediaType = jaxbMediaType;
     return this;
   }
 
@@ -140,12 +216,11 @@ public class RepositoryExporterController implements InitializingBean {
     if (null == conversionService) {
       conversionService = new DefaultConversionService();
     }
-    Assert.notNull(transactionTemplate, "TransactionTemplate cannot be null");
+    Assert.notNull(httpMessageConverters, "HttpMessageConverters cannot be null");
   }
 
   @SuppressWarnings({"unchecked"})
-  @RequestMapping(method = RequestMethod.GET)
-  public void get(ServerHttpRequest request, final Model model) {
+  @Override public void get(ServerHttpRequest request, final Model model) {
     if (validBaseUri(request.getURI())) {
 
       URI relativeUri = baseUri.relativize(request.getURI());
@@ -158,6 +233,10 @@ public class RepositoryExporterController implements InitializingBean {
       if (uris.size() > 0) {
         final String repoName = uris.get(0).getPath();
         final CrudRepository repo = repositoryMetadata.repositoryFor(repoName);
+        if (null == repo) {
+          model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+          return;
+        }
         final EntityInformation entityInfo = repositoryMetadata.entityInfoFor(repo);
         final Class<?> domainClass = entityInfo.getJavaType();
         final Class<? extends Serializable> idType = entityInfo.getIdType();
@@ -167,14 +246,14 @@ public class RepositoryExporterController implements InitializingBean {
         switch (uriCnt) {
 
           // List the entities
-          case LIST_ENTITIES: {
+          case HAS_RESOURCE: {
             Map<String, List<Link>> resource = new HashMap<String, List<Link>>();
             List<Link> links = new ArrayList<Link>();
             Iterator iter = repo.findAll().iterator();
             while (iter.hasNext()) {
               Object o = iter.next();
               Serializable id = entityInfo.getId(o);
-              links.add(new SimpleLink(RESOURCE,
+              links.add(new SimpleLink(o.getClass().getSimpleName(),
                                        UriComponentsBuilder.fromUri(baseUri)
                                            .pathSegment(repoName, id.toString())
                                            .build()
@@ -189,7 +268,7 @@ public class RepositoryExporterController implements InitializingBean {
           }
 
           // Retrieve an entity
-          case HAS_ID: {
+          case HAS_RESOURCE_ID: {
             final String sId = UriUtils.path(uris.get(1));
             Serializable serId;
             if (idType == String.class) {
@@ -202,10 +281,9 @@ public class RepositoryExporterController implements InitializingBean {
             if (null == entity) {
               model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
             } else {
-              Map<String, Object> entityDto = transferPropertiesLinkAware(entity, entityMetadata, repoName, sId);
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("entityDto: " + entityDto);
-              }
+              Map<String, Object> entityDto = extractPropertiesLinkAware(entity, entityMetadata, repoName, sId);
+              addSelfLink(entityDto, repoName, sId);
+
               model.addAttribute(STATUS, HttpStatus.OK);
               model.addAttribute(RESOURCE, entityDto);
             }
@@ -213,9 +291,9 @@ public class RepositoryExporterController implements InitializingBean {
           }
 
           // Retrieve the linked entities
-          case LIST_LINKS:
+          case HAS_SECOND_LEVEL_RESOURCE:
             // Retrieve a child entity
-          case HAS_CHILD_ID: {
+          case HAS_SECOND_LEVEL_ID: {
             final String sId = UriUtils.path(uris.get(1));
             final Serializable serId;
             if (idType == String.class) {
@@ -224,77 +302,93 @@ public class RepositoryExporterController implements InitializingBean {
               serId = conversionService.convert(sId, idType);
             }
 
-            transactionTemplate.execute(new TransactionCallback<Object>() {
-              @Override public Object doInTransaction(TransactionStatus status) {
-                final Object entity = repo.findOne(serId);
-                if (null == entity) {
-                  model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+            Object entity = repo.findOne(serId);
+            if (null == entity) {
+              model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+            } else {
+              model.addAttribute(STATUS, HttpStatus.OK);
+              final String attrName = UriUtils.path(uris.get(2));
+              Attribute attr = entityType.getAttribute(attrName);
+              if (null != attr) {
+                Class<?> childType;
+                if (attr instanceof PluralAttribute) {
+                  childType = ((PluralAttribute) attr).getElementType().getJavaType();
                 } else {
-                  model.addAttribute(STATUS, HttpStatus.OK);
-                  final String attrName = UriUtils.path(uris.get(2));
-                  Attribute attr = entityType.getAttribute(attrName);
-                  if (null != attr) {
-                    Class<?> childType;
-                    if (attr instanceof PluralAttribute) {
-                      childType = ((PluralAttribute) attr).getElementType().getJavaType();
-                    } else {
-                      childType = attr.getJavaType();
-                    }
-                    CrudRepository childRepo = repositoryMetadata.repositoryFor(childType);
-                    if (null == childRepo) {
-                      model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
-                      return null;
-                    }
-                    EntityInformation childEntityInfo = repositoryMetadata.entityInfoFor(childRepo);
-                    JpaEntityMetadata childEntityMetadata = repositoryMetadata.entityMetadataFor(childEntityInfo.getJavaType());
+                  childType = attr.getJavaType();
+                }
+                final CrudRepository childRepo = repositoryMetadata.repositoryFor(childType);
+                if (null == childRepo) {
+                  model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+                  return;
+                }
+                final EntityInformation childEntityInfo = repositoryMetadata.entityInfoFor(childRepo);
+                final JpaEntityMetadata childEntityMetadata = repositoryMetadata.entityMetadataFor(childEntityInfo.getJavaType());
 
-                    Object child = entityMetadata.get(attrName, entity);
-                    if (uriCnt == 3) {
-                      Map<String, List<Link>> resource = new HashMap<String, List<Link>>();
+                final Object child = entityMetadata.get(attrName, entity);
+                if (uriCnt == 3) {
+                  Map<String, Object> resource = new HashMap<String, Object>();
+                  if (null != child) {
+                    if (child instanceof Collection) {
                       List<Link> links = new ArrayList<Link>();
-                      if (null != child) {
-                        if (child instanceof Collection) {
-                          for (Object o : (Collection) child) {
-                            String childId = childEntityInfo.getId(o).toString();
-                            URI uri = UriComponentsBuilder.fromUri(baseUri)
-                                .pathSegment(repoName, sId, attrName, childId)
-                                .build()
-                                .toUri();
-                            links.add(new SimpleLink(attrName, uri));
-                          }
-                          resource.put(LINKS, links);
-                          model.addAttribute(RESOURCE, resource);
+                      for (Object o : (Collection) child) {
+                        String childId = childEntityInfo.getId(o).toString();
+                        URI uri = UriComponentsBuilder.fromUri(baseUri)
+                            .pathSegment(repoName, sId, attrName, childId)
+                            .build()
+                            .toUri();
+                        links.add(new SimpleLink(childType.getSimpleName(), uri));
+                      }
+                      resource.put(LINKS, links);
+                      model.addAttribute(RESOURCE, resource);
+                    } else if (child instanceof Map) {
+                      List<Object> links = new ArrayList<Object>();
+                      for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) child).entrySet()) {
+                        String childId = childEntityInfo.getId(entry.getValue()).toString();
+                        URI uri = UriComponentsBuilder.fromUri(baseUri)
+                            .pathSegment(repoName, sId, attrName, childId)
+                            .build()
+                            .toUri();
+                        Object oKey = entry.getKey();
+                        String sKey;
+                        if (ClassUtils.isAssignable(oKey.getClass(), String.class)) {
+                          sKey = (String) oKey;
                         } else {
-                          model.addAttribute(RESOURCE, child);
+                          sKey = conversionService.convert(oKey, String.class);
                         }
+                        links.add(new SimpleLink(sKey, uri));
                       }
-                    } else if (uriCnt == 4) {
-                      String childId = UriUtils.path(uris.get(3));
-                      Class<? extends Serializable> childIdType = childEntityInfo.getIdType();
-                      final Serializable childSerId;
-                      if (idType == String.class) {
-                        childSerId = childId;
-                      } else {
-                        childSerId = conversionService.convert(childId, childIdType);
-                      }
-
-                      Object o = childRepo.findOne(childSerId);
-                      if (null != o) {
-                        Map<String, Object> entityDto = transferPropertiesLinkAware(o,
-                                                                                    childEntityMetadata,
-                                                                                    repoName,
-                                                                                    sId,
-                                                                                    attrName);
-                        model.addAttribute(RESOURCE, entityDto);
-                      } else {
-                        model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
-                      }
+                      resource.put(attrName, links);
+                      model.addAttribute(RESOURCE, resource);
+                    } else {
+                      model.addAttribute(RESOURCE, child);
                     }
                   }
+                } else if (uriCnt == 4) {
+                  final String childId = UriUtils.path(uris.get(3));
+                  Class<? extends Serializable> childIdType = childEntityInfo.getIdType();
+                  final Serializable childSerId;
+                  if (idType == String.class) {
+                    childSerId = childId;
+                  } else {
+                    childSerId = conversionService.convert(childId, childIdType);
+                  }
+
+                  final Object o = childRepo.findOne(childSerId);
+                  if (null != o) {
+                    Map<String, Object> entityDto = extractPropertiesLinkAware(o,
+                                                                               childEntityMetadata,
+                                                                               repoName,
+                                                                               sId,
+                                                                               attrName);
+                    addSelfLink(entityDto, repositoryMetadata.repositoryNameFor(childRepo), childId);
+                    model.addAttribute(RESOURCE, entityDto);
+                  } else {
+                    model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+                  }
                 }
-                return null;
               }
-            });
+            }
+
             return;
           }
 
@@ -312,7 +406,7 @@ public class RepositoryExporterController implements InitializingBean {
     Map<String, List<Link>> resource = new HashMap<String, List<Link>>();
     List<Link> links = new ArrayList<Link>();
     for (String name : repositoryMetadata.repositoryNames()) {
-      links.add(new SimpleLink(RESOURCE,
+      links.add(new SimpleLink(name,
                                UriComponentsBuilder.fromUri(baseUri)
                                    .pathSegment(name)
                                    .build()
@@ -324,15 +418,477 @@ public class RepositoryExporterController implements InitializingBean {
     model.addAttribute(RESOURCE, resource);
   }
 
+  @SuppressWarnings({"unchecked"})
+  @Override public void createOrUpdate(ServerHttpRequest request, Model model) {
+    if (validBaseUri(request.getURI())) {
+
+      URI relativeUri = baseUri.relativize(request.getURI());
+      final List<URI> uris = UriUtils.explode(baseUri, relativeUri);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("uris: " + uris);
+      }
+
+      final int uriCnt = uris.size();
+      if (uriCnt > 0) {
+        final String repoName = UriUtils.path(uris.get(0));
+        final CrudRepository repo = repositoryMetadata.repositoryFor(repoName);
+        if (null == repo) {
+          model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+          return;
+        }
+        final EntityInformation entityInfo = repositoryMetadata.entityInfoFor(repo);
+        final Class<?> domainClass = entityInfo.getJavaType();
+        final Class<? extends Serializable> idType = entityInfo.getIdType();
+        final JpaEntityMetadata entityMetadata = repositoryMetadata.entityMetadataFor(domainClass);
+        final MediaType incomingMediaType = request.getHeaders().getContentType();
+
+        switch (uriCnt) {
+
+          // Create a new entity
+          case HAS_RESOURCE:
+          case HAS_RESOURCE_ID: {
+            if (incomingMediaType.equals(jsonMediaType)) {
+              try {
+                final Map incoming = readIncoming(request, incomingMediaType, Map.class);
+                if (null == incoming) {
+                  model.addAttribute(STATUS, HttpStatus.NOT_ACCEPTABLE);
+                } else {
+                  String resourceId;
+                  Serializable serId = null;
+                  if (uriCnt == HAS_RESOURCE_ID) {
+                    resourceId = UriUtils.path(uris.get(1));
+                    if (idType == String.class) {
+                      serId = resourceId;
+                    } else {
+                      serId = conversionService.convert(resourceId, idType);
+                    }
+                  }
+
+                  final Object entity = request.getMethod() == HttpMethod.PUT ?
+                      repo.findOne(serId) :
+                      entityMetadata.targetType().newInstance();
+
+                  entityMetadata.doWithEmbedded(new Handler<Attribute, Void>() {
+                    @Override public Void handle(Attribute attribute) {
+                      String name = attribute.getName();
+                      if (incoming.containsKey(name)) {
+                        Object val = incoming.get(name);
+                        entityMetadata.set(name, val, entity);
+                      }
+                      return null;
+                    }
+                  });
+
+                  if (uriCnt == HAS_RESOURCE_ID && request.getMethod() == HttpMethod.POST) {
+                    entityMetadata.id(serId, entity);
+                  }
+
+                  Object savedEntity = repo.save(entity);
+                  String sId = entityInfo.getId(savedEntity).toString();
+
+                  URI selfUri = UriComponentsBuilder.fromUri(baseUri)
+                      .pathSegment(repoName, sId)
+                      .build()
+                      .toUri();
+
+                  if (request.getMethod() == HttpMethod.POST) {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.set("Location", selfUri.toString());
+                    model.addAttribute(HEADERS, headers);
+                    model.addAttribute(STATUS, HttpStatus.CREATED);
+                  } else {
+                    model.addAttribute(STATUS, HttpStatus.NO_CONTENT);
+                  }
+                }
+              } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+                model.addAttribute(STATUS, HttpStatus.BAD_REQUEST);
+              }
+              return;
+            } else {
+              model.addAttribute(STATUS, HttpStatus.NOT_ACCEPTABLE);
+              return;
+            }
+          }
+
+          case HAS_SECOND_LEVEL_RESOURCE: {
+            String propertyName = UriUtils.path(uris.get(2));
+            Attribute attr = entityMetadata.linkedAttributes().get(propertyName);
+            if (null != attr) {
+              Object entity = resolveTopLevelResource(request.getURI().toString());
+              if (null != entity) {
+                try {
+                  if (incomingMediaType.equals(uriListMediaType)) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(request.getBody()));
+                    String line;
+                    while (null != (line = in.readLine())) {
+                      String sLinkUri = line.trim();
+                      Object childEntity = resolveTopLevelResource(sLinkUri);
+
+                      if (attr instanceof PluralAttribute) {
+                        PluralAttribute plAttr = (PluralAttribute) attr;
+                        switch (plAttr.getCollectionType()) {
+                          case COLLECTION:
+                          case LIST:
+                            if (request.getMethod() == HttpMethod.PUT) {
+                              entityMetadata.set(propertyName, new ArrayList(), entity);
+                            }
+                            addToCollection(propertyName, entity, entityMetadata, ArrayList.class, childEntity);
+                            break;
+                          case SET:
+                            if (request.getMethod() == HttpMethod.PUT) {
+                              entityMetadata.set(propertyName, new HashSet(), entity);
+                            }
+                            addToCollection(propertyName, entity, entityMetadata, HashSet.class, childEntity);
+                            break;
+                          case MAP:
+                            model.addAttribute(STATUS, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+                            return;
+                        }
+                      } else if (attr instanceof SingularAttribute) {
+                        entityMetadata.set(propertyName, childEntity, entity);
+                      }
+                    }
+                    repo.save(entity);
+                    if (request.getMethod() == HttpMethod.PUT) {
+                      model.addAttribute(STATUS, HttpStatus.NO_CONTENT);
+                    } else {
+                      model.addAttribute(STATUS, HttpStatus.CREATED);
+                    }
+                  } else if (incomingMediaType.equals(jsonMediaType)) {
+                    final List<Map<String, String>> incoming = readIncoming(request, incomingMediaType, List.class);
+                    for (Map<String, String> link : incoming) {
+                      String sLinkUri = link.get("href");
+                      Object childEntity = resolveTopLevelResource(sLinkUri);
+
+                      if (attr instanceof PluralAttribute) {
+                        PluralAttribute plAttr = (PluralAttribute) attr;
+                        switch (plAttr.getCollectionType()) {
+                          case COLLECTION:
+                          case LIST:
+                            if (request.getMethod() == HttpMethod.PUT) {
+                              entityMetadata.set(propertyName, new ArrayList(), entity);
+                            }
+                            addToCollection(propertyName, entity, entityMetadata, ArrayList.class, childEntity);
+                            break;
+                          case SET:
+                            if (request.getMethod() == HttpMethod.PUT) {
+                              entityMetadata.set(propertyName, new HashSet(), entity);
+                            }
+                            addToCollection(propertyName, entity, entityMetadata, HashSet.class, childEntity);
+                            break;
+                          case MAP:
+                            if (request.getMethod() == HttpMethod.PUT) {
+                              entityMetadata.set(propertyName, new HashMap(), entity);
+                            }
+                            addToMap(propertyName, entity, entityMetadata, link.get("rel"), childEntity);
+                            break;
+                        }
+                      } else if (attr instanceof SingularAttribute) {
+                        entityMetadata.set(propertyName, childEntity, entity);
+                      }
+                    }
+                    repo.save(entity);
+                    if (request.getMethod() == HttpMethod.PUT) {
+                      model.addAttribute(STATUS, HttpStatus.NO_CONTENT);
+                    } else {
+                      model.addAttribute(STATUS, HttpStatus.CREATED);
+                    }
+                  }
+                } catch (IOException e) {
+                  model.addAttribute(STATUS, HttpStatus.INTERNAL_SERVER_ERROR);
+                } catch (InstantiationException e) {
+                  model.addAttribute(STATUS, HttpStatus.BAD_REQUEST);
+                } catch (IllegalAccessException e) {
+                  model.addAttribute(STATUS, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+              } else {
+                model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+              }
+            }
+            return;
+          }
+
+          // List resources
+          default:
+        }
+      }
+    } else {
+      model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    model.addAttribute(STATUS, HttpStatus.OK);
+
+    Map<String, List<Link>> resource = new HashMap<String, List<Link>>();
+    List<Link> links = new ArrayList<Link>();
+    for (String name : repositoryMetadata.repositoryNames()) {
+      links.add(new SimpleLink(name,
+                               UriComponentsBuilder.fromUri(baseUri)
+                                   .pathSegment(name)
+                                   .build()
+                                   .toUri())
+      );
+    }
+    resource.put(LINKS, links);
+
+    model.addAttribute(RESOURCE, resource);
+  }
+
+  @SuppressWarnings({"unchecked"})
+  @Override public void delete(ServerHttpRequest request, Model model) {
+    if (validBaseUri(request.getURI())) {
+
+      URI relativeUri = baseUri.relativize(request.getURI());
+      List<URI> uris = UriUtils.explode(baseUri, relativeUri);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("uris: " + uris);
+      }
+
+      int uriCnt = uris.size();
+      if (uriCnt > 0) {
+        String repoName = UriUtils.path(uris.get(0));
+        CrudRepository repo = repositoryMetadata.repositoryFor(repoName);
+        if (null == repo) {
+          model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+          return;
+        }
+        EntityInformation entityInfo = repositoryMetadata.entityInfoFor(repo);
+        Class<?> domainClass = entityInfo.getJavaType();
+        Class<? extends Serializable> idType = entityInfo.getIdType();
+        JpaEntityMetadata entityMetadata = repositoryMetadata.entityMetadataFor(domainClass);
+
+        switch (uriCnt) {
+
+          case HAS_RESOURCE_ID: {
+            String resourceId = UriUtils.path(uris.get(1));
+            Serializable serId = conversionService.convert(resourceId, idType);
+            repo.delete(serId);
+            model.addAttribute(STATUS, HttpStatus.NO_CONTENT);
+            return;
+          }
+
+          case HAS_SECOND_LEVEL_ID: {
+            String resourceId = UriUtils.path(uris.get(1));
+            Serializable serId = conversionService.convert(resourceId, idType);
+
+            Object entity = repo.findOne(serId);
+
+            String propertyName = UriUtils.path(uris.get(2));
+            Attribute attr = entityMetadata.linkedAttributes().get(propertyName);
+            if (null != attr && null != entity) {
+              Object childEntity = resolveSecondLevelResource(request.getURI().toString());
+              if (attr instanceof PluralAttribute) {
+                PluralAttribute plAttr = (PluralAttribute) attr;
+                switch (plAttr.getCollectionType()) {
+                  case COLLECTION:
+                  case LIST:
+                  case SET:
+                    removeFromCollection(propertyName, entity, entityMetadata, childEntity);
+                    break;
+                  case MAP:
+                    removeFromMap(propertyName, entity, entityMetadata, childEntity);
+                    break;
+                }
+              } else {
+                entityMetadata.set(propertyName, null, entity);
+              }
+
+              repo.save(entity);
+
+              model.addAttribute(STATUS, HttpStatus.NO_CONTENT);
+              return;
+            } else {
+              model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+              return;
+            }
+          }
+
+        }
+      }
+    } else {
+      model.addAttribute(STATUS, HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    model.addAttribute(STATUS, HttpStatus.OK);
+
+    Map<String, List<Link>> resource = new HashMap<String, List<Link>>();
+    List<Link> links = new ArrayList<Link>();
+    for (String name : repositoryMetadata.repositoryNames()) {
+      links.add(new SimpleLink(name,
+                               UriComponentsBuilder.fromUri(baseUri)
+                                   .pathSegment(name)
+                                   .build()
+                                   .toUri())
+      );
+    }
+    resource.put(LINKS, links);
+
+    model.addAttribute(RESOURCE, resource);
+  }
+
+
   private boolean validBaseUri(URI requestUri) {
     String path = baseUri.relativize(requestUri).getPath();
     return !StringUtils.hasText(path) || path.charAt(0) != '/';
   }
 
   @SuppressWarnings({"unchecked"})
-  private Map<String, Object> transferPropertiesLinkAware(final Object entity,
-                                                          final JpaEntityMetadata entityMetadata,
-                                                          final String... pathSegs) {
+  private void addSelfLink(Map<String, Object> model, String... pathComponents) {
+    List<Link> links = (List<Link>) model.get(LINKS);
+    if (null == links) {
+      links = new ArrayList<Link>();
+      model.put(LINKS, links);
+    }
+    URI selfUri = UriComponentsBuilder.fromUri(baseUri)
+        .pathSegment(pathComponents)
+        .build()
+        .toUri();
+    links.add(new SimpleLink(SELF, selfUri));
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private <V extends Serializable> V stringToSerializable(String s, Class<V> targetType) {
+    if (ClassUtils.isAssignable(targetType, String.class)) {
+      return (V) s;
+    } else {
+      return conversionService.convert(s, targetType);
+    }
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private <V> V readIncoming(HttpInputMessage request, MediaType incomingMediaType, Class<V> targetType) throws IOException {
+    for (HttpMessageConverter converter : httpMessageConverters) {
+      if (converter.canRead(targetType, incomingMediaType)) {
+        return (V) converter.read(targetType, request);
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private Object resolveTopLevelResource(String uri) {
+    URI href = UriUtils.parseUri(uri);
+    if (validBaseUri(href)) {
+      URI relativeUri = baseUri.relativize(href);
+      List<URI> uris = UriUtils.explode(baseUri, relativeUri);
+
+      if (uris.size() > 1) {
+        String repoName = UriUtils.path(uris.get(0));
+        String sId = UriUtils.path(uris.get(1));
+
+        CrudRepository repo = repositoryMetadata.repositoryFor(repoName);
+        EntityInformation entityInfo = repositoryMetadata.entityInfoFor(repo);
+        Class<? extends Serializable> idType = entityInfo.getIdType();
+
+        Serializable serId = stringToSerializable(sId, idType);
+
+        return repo.findOne(serId);
+      }
+    }
+    return null;
+
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private Object resolveSecondLevelResource(String uri) {
+    URI href = UriUtils.parseUri(uri);
+    if (validBaseUri(href)) {
+      URI relativeUri = baseUri.relativize(href);
+      List<URI> uris = UriUtils.explode(baseUri, relativeUri);
+
+      if (uris.size() > 3) {
+        String topLevelRepoName = UriUtils.path(uris.get(0));
+        CrudRepository topLevelRepo = repositoryMetadata.repositoryFor(topLevelRepoName);
+        EntityInformation topLevelEntityInfo = repositoryMetadata.entityInfoFor(topLevelRepo);
+        JpaEntityMetadata topLevelEntityMetadata = repositoryMetadata.entityMetadataFor(topLevelEntityInfo.getJavaType());
+
+        String propertyName = UriUtils.path(uris.get(2));
+        Attribute attr = topLevelEntityMetadata.linkedAttributes().get(propertyName);
+        if (null != attr) {
+          CrudRepository secondLevelRepo;
+          if (attr instanceof PluralAttribute) {
+            secondLevelRepo = repositoryMetadata.repositoryFor(((PluralAttribute) attr).getElementType().getJavaType());
+          } else {
+            secondLevelRepo = repositoryMetadata.repositoryFor(attr.getJavaType());
+          }
+          EntityInformation secondLevelEntityInfo = repositoryMetadata.entityInfoFor(secondLevelRepo);
+          Class<? extends Serializable> secondLevelIdType = secondLevelEntityInfo.getIdType();
+          Serializable secondLevelId = stringToSerializable(UriUtils.path(uris.get(3)), secondLevelIdType);
+
+          return secondLevelRepo.findOne(secondLevelId);
+        }
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private <V extends Collection> void addToCollection(String name,
+                                                      Object entity,
+                                                      JpaEntityMetadata metadata,
+                                                      Class<V> containerClass,
+                                                      Object obj)
+      throws IllegalAccessException,
+             InstantiationException {
+    Collection c = (V) metadata.get(name, entity);
+    if (null == c) {
+      c = containerClass.newInstance();
+      metadata.set(name, c, entity);
+    }
+    c.add(obj);
+  }
+
+  public void removeFromCollection(String name,
+                                   Object entity,
+                                   JpaEntityMetadata metadata,
+                                   Object obj) {
+    Collection c = (Collection) metadata.get(name, entity);
+    if (null != c) {
+      c.remove(obj);
+    }
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private void addToMap(String name,
+                        Object entity,
+                        JpaEntityMetadata metadata,
+                        Object key,
+                        Object obj)
+      throws IllegalAccessException,
+             InstantiationException {
+    Map m = (Map) metadata.get(name, entity);
+    if (null == m) {
+      m = new HashMap();
+      metadata.set(name, m, entity);
+    }
+    m.put(key, obj);
+  }
+
+  @SuppressWarnings({"unchecked"})
+  public void removeFromMap(String name,
+                            Object entity,
+                            JpaEntityMetadata metadata,
+                            Object obj) {
+    Map<Object, Object> m = (Map<Object, Object>) metadata.get(name, entity);
+    if (null != m) {
+      LOG.debug("obj: " + obj);
+      for (Map.Entry<Object, Object> entry : m.entrySet()) {
+        LOG.debug("key: " + entry.getKey());
+        LOG.debug("value: " + entry.getValue());
+        LOG.debug("remove? " + (entry.getValue() == obj || entry.getValue().equals(obj)));
+        if (entry.getValue() == obj || entry.getValue().equals(obj)) {
+          m.remove(entry.getKey());
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private Map<String, Object> extractPropertiesLinkAware(final Object entity,
+                                                         final JpaEntityMetadata entityMetadata,
+                                                         final String... pathSegs) {
     final Map<String, Object> entityDto = new HashMap<String, Object>();
 
     entityMetadata.doWithEmbedded(new Handler<Attribute, Void>() {

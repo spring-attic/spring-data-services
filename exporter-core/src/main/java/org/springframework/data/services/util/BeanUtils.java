@@ -92,6 +92,7 @@ public abstract class BeanUtils {
     return false;
   }
 
+  @SuppressWarnings({"unchecked"})
   public static Object findFirst(Object o, Object... objs) {
     for (Object obj : objs) {
       if (o == obj || null != o && o.equals(obj)) {

@@ -1,26 +1,19 @@
 package org.springframework.data.services.web.exporter.test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public class PersonLoader implements ApplicationContextAware, InitializingBean {
+public class PersonLoader implements InitializingBean {
 
-  private ApplicationContext applicationContext;
   private PersonRepository personRepository;
   private ProfileRepository profileRepository;
   private AddressRepository addressRepository;
-
-  @Override public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    this.applicationContext = applicationContext;
-  }
 
   public PersonRepository getPersonRepository() {
     return personRepository;
@@ -48,15 +41,23 @@ public class PersonLoader implements ApplicationContextAware, InitializingBean {
 
   @Override public void afterPropertiesSet() throws Exception {
     Address pers1addr = addressRepository.save(new Address(new String[]{"1234 W. 1st St."}, "Univille", "ST", "12345"));
-    List<Profile> pers1profiles = new ArrayList<Profile>();
-    pers1profiles.add(profileRepository.save(new Profile("twitter", "#!/johndoe")));
-    pers1profiles.add(profileRepository.save(new Profile("facebook", "/johndoe")));
-    personRepository.save(new Person("John Doe", pers1addr, pers1profiles));
+
+    Map<String, Profile> pers1profiles = new HashMap<String, Profile>();
+    Profile twitter = profileRepository.save(new Profile("twitter", "#!/johndoe"));
+    Profile fb = profileRepository.save(new Profile("facebook", "/johndoe"));
+    pers1profiles.put("twitter", twitter);
+    pers1profiles.put("facebook", fb);
+
+    personRepository.save(new Person(1L, "John Doe", Arrays.asList(pers1addr), pers1profiles));
 
     Address pers2addr = addressRepository.save(new Address(new String[]{"1234 E. 2nd St."}, "Univille", "ST", "12345"));
-    List<Profile> pers2profiles = new ArrayList<Profile>();
-    pers2profiles.add(profileRepository.save(new Profile("facebook", "/janedoe")));
-    personRepository.save(new Person("Jane Doe", pers2addr, pers2profiles));
+
+    Map<String, Profile> pers2profiles = new HashMap<String, Profile>();
+    Profile twitter2 = profileRepository.save(new Profile("twitter", "#!/janedoe"));
+    Profile fb2 = profileRepository.save(new Profile("facebook", "/janedoe"));
+    pers2profiles.put("facebook", fb2);
+
+    personRepository.save(new Person(2L, "Jane Doe", Arrays.asList(pers2addr), pers2profiles));
   }
 
 }

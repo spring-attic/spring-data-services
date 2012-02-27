@@ -10,9 +10,7 @@ import javax.persistence.Id;
 @Entity
 public class Profile {
 
-  @Id
-  @GeneratedValue
-  private Long id;
+  @Id @GeneratedValue private Long id;
   private String type;
   private String url;
 
@@ -38,6 +36,45 @@ public class Profile {
 
   public void setUrl(String url) {
     this.url = url;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (!(o instanceof Profile)) {
+      return false;
+    }
+
+    Profile p2 = (Profile) o;
+
+    boolean idEq;
+    if (null != id) {
+      idEq = id.equals(p2.id);
+    } else {
+      idEq = p2.id == null;
+    }
+
+    boolean typeEq;
+    if (null != type) {
+      typeEq = type.equals(p2.type);
+    } else {
+      typeEq = p2.type == null;
+    }
+
+    boolean urlEq;
+    if (null != url) {
+      urlEq = url.equals(p2.url);
+    } else {
+      urlEq = p2.url == null;
+    }
+
+    return idEq && typeEq && urlEq;
+  }
+
+  @Override public String toString() {
+    return "Profile{" +
+        "id=" + id +
+        ", type='" + type + '\'' +
+        ", url='" + url + '\'' +
+        '}';
   }
 
 }

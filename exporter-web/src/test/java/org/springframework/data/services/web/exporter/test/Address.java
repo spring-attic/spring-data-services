@@ -10,7 +10,7 @@ import javax.persistence.Id;
 @Entity
 public class Address {
 
-  @Id @GeneratedValue Long id;
+  @Id @GeneratedValue private Long id;
   private String[] lines;
   private String city;
   private String province;
