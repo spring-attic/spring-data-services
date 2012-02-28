@@ -92,6 +92,23 @@ public abstract class BeanUtils {
     return false;
   }
 
+  public static <T> T tail(List<T> l) {
+    if (null != l && l.size() > 0) {
+      return l.get(l.size() - 1);
+    }
+    return null;
+  }
+
+  @SuppressWarnings({"unchecked"})
+  public static <T> T findFirst(Class<T> clazz, List<?> stack) {
+    for (Object o : stack) {
+      if (ClassUtils.isAssignable(o.getClass(), clazz)) {
+        return (T) o;
+      }
+    }
+    return null;
+  }
+
   @SuppressWarnings({"unchecked"})
   public static Object findFirst(Object o, Object... objs) {
     for (Object obj : objs) {

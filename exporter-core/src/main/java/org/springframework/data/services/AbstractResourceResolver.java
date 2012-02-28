@@ -9,13 +9,12 @@ import org.slf4j.LoggerFactory;
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
 @SuppressWarnings({"unchecked"})
-public abstract class AbstractResourceHandler
-    implements ResourceHandler {
+public abstract class AbstractResourceResolver implements ResourceResolver {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
   protected final URI baseUri;
 
-  protected AbstractResourceHandler(URI baseUri) {
+  protected AbstractResourceResolver(URI baseUri) {
     this.baseUri = baseUri;
   }
 
