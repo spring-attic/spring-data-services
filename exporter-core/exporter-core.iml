@@ -59,44 +59,44 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-beans/3.1.0.RELEASE/jar/d12bb11cc2469cca2d8ba33d86d188733544d7e0/spring-beans-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-beans/3.1.1.RELEASE/jar/83d0e5adc98714783f0fb7d8a5e97ef4cf08da49/spring-beans-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-beans/3.1.0.RELEASE/source/b59685ec9d53af4d5e9e522115eda33b4596cfb6/spring-beans-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-beans/3.1.1.RELEASE/source/fb22e62d1a38a65d37ce69e552dc041b30c413e2/spring-beans-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context/3.1.0.RELEASE/jar/d36e9ab580dccc8311704bc11f2434f230bdec28/spring-context-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context/3.1.1.RELEASE/jar/ecb0784a0712c1bfbc1c2018eeef6776861300e4/spring-context-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context/3.1.0.RELEASE/source/b5b20b5c755ad748b607807a6f0e3e3479cdfe1d/spring-context-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context/3.1.1.RELEASE/source/8ce2eafd88e4ba36bcbddaca5c1d1649fcd2505e/spring-context-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-core/3.1.0.RELEASE/jar/3a18c725dd321e457cfb48547d40c2862216bb3b/spring-core-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-core/3.1.1.RELEASE/jar/419e9233c8d55f64a0c524bb94c3ba87e51e7d95/spring-core-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-core/3.1.0.RELEASE/source/f0bc10850fd7d7f7f5a8742b60e7e81551e9f3a9/spring-core-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-core/3.1.1.RELEASE/source/5e86412e939566115a242cad8fe01c1de74d3752/spring-core-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-web/3.1.0.RELEASE/jar/c50458fccc24b87170f6557765c6720a489b5eb2/spring-web-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-web/3.1.1.RELEASE/jar/7b18bbab94119e8ae322e8599c067c4f4b3701f6/spring-web-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-web/3.1.0.RELEASE/source/f7d078f44b8c1d77d0b639e74013ceecc1332124/spring-web-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-web/3.1.1.RELEASE/source/b8a6a4274cf5e4003e4cf0c8bc3a81e2a277ef14/spring-web-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -158,11 +158,11 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-asm/3.1.0.RELEASE/jar/de7cf38491d3243c98c7d61ccdb40756df92c6d1/spring-asm-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-asm/3.1.1.RELEASE/jar/8717ad8947fcada5c55da89eb474bf053c30e57/spring-asm-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-asm/3.1.0.RELEASE/source/b442feee99993c71bdfedeba8e049863966034ce/spring-asm-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-asm/3.1.1.RELEASE/source/ea39e23d58d6976c7061ea79dd72f295f9bb1def/spring-asm-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -180,22 +180,22 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-aop/3.1.0.RELEASE/jar/5d998ce239b87cbf66fd18a01dad854de13e2f06/spring-aop-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-aop/3.1.1.RELEASE/jar/3c86058cdaea30df35e4b951a615e09eb07da589/spring-aop-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-aop/3.1.0.RELEASE/source/78511dd53c1e04e2388be79229ddc5a579108a/spring-aop-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-aop/3.1.1.RELEASE/source/df7e7cd9a4dc1efb62d639f9b7f94d178086fce1/spring-aop-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-expression/3.1.0.RELEASE/jar/d226f5e14c7c775b97db275950786c083290b983/spring-expression-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-expression/3.1.1.RELEASE/jar/1486d7787ec4ff8da8cbf8752d30e4c808412b3f/spring-expression-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-expression/3.1.0.RELEASE/source/e8191f9a849b984a403939a37de818b1b356e7e5/spring-expression-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-expression/3.1.1.RELEASE/source/68efd52be750d1dd5b3477ea587b4391c521a7ce/spring-expression-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -331,22 +331,22 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-test/3.1.0.RELEASE/jar/23270c97d3582ce36d3e4a415b836ad16f848281/spring-test-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-test/3.1.1.RELEASE/jar/de2889e5d2d6f22e1590dcab846e938827e1a936/spring-test-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-test/3.1.0.RELEASE/source/6ad2913544e8fc6fa0ff15a369a9202f8c834c28/spring-test-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-test/3.1.1.RELEASE/source/e6ffb01a20ed7ba672564eb142fe2309280eabf1/spring-test-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context-support/3.1.0.RELEASE/jar/379bb71a6eb9f1a965cd7d6d94524deab2a3da07/spring-context-support-3.1.0.RELEASE.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context-support/3.1.1.RELEASE/jar/fc5de9fead1e54054298d37b196f9cd64ced19bf/spring-context-support-3.1.1.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context-support/3.1.0.RELEASE/source/4b6e100cc17f62fdcdecd83e5eeeebd0641fbef9/spring-context-support-3.1.0.RELEASE-sources.jar!/" />
+          <root url="jar://$HOME_DIR$/.gradle/caches/artifacts-8/filestore/org.springframework/spring-context-support/3.1.1.RELEASE/source/2efcf3e2a866461db03a76b496fd2e6e104cbb8c/spring-context-support-3.1.1.RELEASE-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -8,13 +8,7 @@
   <tx:annotation-driven/>
 
   <!-- Generic utilities used throughout -->
-  <bean id="baseUri" class="java.net.URI">
-    <constructor-arg value="http://localhost:8080/data"/>
-  </bean>
   <bean id="conversionService" class="org.springframework.core.convert.support.DefaultConversionService"/>
-  <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-    <property name="transactionManager" ref="transactionManager"/>
-  </bean>
   <bean id="httpMessageConverters" class="java.util.ArrayList">
     <constructor-arg>
       <list>
@@ -53,19 +47,12 @@
       </list>
     </constructor-arg>
   </bean>
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
   <!-- Metadata for JPA Repositories -->
-  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
-  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata">
-    <property name="repositories">
-      <list>
-        <ref bean="addressRepository"/>
-        <ref bean="personRepository"/>
-        <ref bean="profileRepository"/>
-      </list>
-    </property>
-  </bean>
+  <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata"/>
 
+  <!-- Resolvers -->
   <bean id="getResolvers" class="org.springframework.data.services.DelegatingResourceResolver">
     <constructor-arg>
       <list>
