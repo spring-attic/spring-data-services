@@ -25,6 +25,7 @@ public class JpaRepositoryResourceResolver extends AbstractResourceResolver {
     return null != metadata.repositoryFor(UriUtils.path(uriTail));
   }
 
+  @SuppressWarnings({"unchecked"})
   @Override public Resource<?> resolve(URI uri, List<Resource<?>> resources) {
     URI uriTail = UriUtils.tail(baseUri, uri);
     return new SimpleResource(uri, metadata.repositoryFor(UriUtils.path(uriTail)));

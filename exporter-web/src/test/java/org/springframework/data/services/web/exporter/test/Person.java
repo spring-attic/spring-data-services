@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
@@ -14,6 +15,8 @@ public class Person {
 
   @Id private Long id;
   private String name;
+  @Version
+  private Long version;
   @OneToMany
   private List<Address> addresses;
   @OneToMany
@@ -35,12 +38,24 @@ public class Person {
     this.profiles = profiles;
   }
 
+  public Long getId() {
+    return id;
+  }
+
   public String getName() {
     return name;
   }
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
   }
 
   public List<Address> getAddresses() {

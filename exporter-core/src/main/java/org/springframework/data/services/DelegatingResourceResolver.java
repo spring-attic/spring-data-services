@@ -23,7 +23,7 @@ public class DelegatingResourceResolver implements ResourceResolver {
     return false;
   }
 
-  @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) {
+  @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) throws ResolverException{
     for (ResourceResolver resolver : resolvers) {
       if (resolver.supports(uri, stack)) {
         return resolver.resolve(uri, stack);

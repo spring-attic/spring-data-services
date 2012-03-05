@@ -22,7 +22,7 @@ public class ListResourceResolver extends AbstractResourceResolver {
   }
 
   @SuppressWarnings({"unchecked"})
-  @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) {
+  @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) throws ResolverException {
     URI tail = UriUtils.tail(baseUri, uri);
     int idx = NumberUtils.parseNumber(UriUtils.path(tail), Integer.class);
 

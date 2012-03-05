@@ -27,7 +27,7 @@ public class MapResourceResolver extends AbstractResourceResolver {
   @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) {
     URI tail = UriUtils.tail(baseUri, uri);
     Map m = (Map) BeanUtils.tail(stack).target();
-    return new SimpleResource(uri, m.get(UriUtils.path(tail)));
+    return new SimpleResource<Object>(uri, m.get(UriUtils.path(tail)));
   }
 
 }

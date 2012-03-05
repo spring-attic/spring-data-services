@@ -30,8 +30,8 @@ public class JpaEntityMetadata {
   public JpaEntityMetadata(EntityType entityType, JpaRepositoryMetadata repositoryMetadata) {
     targetType = entityType.getJavaType();
 
-    Attribute idAttribute = null;
-    Attribute versionAttribute = null;
+    Attribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+    Attribute versionAttribute = entityType.getVersion(Long.class);
     for (Attribute attr : (Set<Attribute>) entityType.getAttributes()) {
       String name = attr.getName();
       Field f = ReflectionUtils.findField(targetType, attr.getName());
@@ -40,13 +40,9 @@ public class JpaEntityMetadata {
 
       if (attr instanceof SingularAttribute) {
         SingularAttribute sattr = (SingularAttribute) attr;
-        if (sattr.isId()) {
-          idAttribute = attr;
-        } else if (sattr.isVersion()) {
-          versionAttribute = attr;
-        } else if (null != repositoryMetadata.repositoryFor(attr.getJavaType())) {
+        if (null != repositoryMetadata.repositoryFor(attr.getJavaType())) {
           linkedAttributes.put(name, attr);
-        } else {
+        } else if (!sattr.isId() && !sattr.isVersion()) {
           embeddedAttributes.put(name, attr);
         }
       } else if (attr instanceof PluralAttribute) {
@@ -93,7 +89,7 @@ public class JpaEntityMetadata {
   }
 
   public Object version(Object target) {
-    return get(versionAttribute.getName(), target);
+    return (null != versionAttribute ? get(versionAttribute.getName(), target) : null);
   }
 
   public <V> V doWithEmbedded(Handler<Attribute, V> handler) {

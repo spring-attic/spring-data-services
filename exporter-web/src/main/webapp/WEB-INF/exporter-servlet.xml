@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-
-  <tx:annotation-driven/>
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <!-- Generic utilities used throughout -->
   <bean id="conversionService" class="org.springframework.core.convert.support.DefaultConversionService"/>
@@ -53,33 +49,67 @@
   <bean id="jpaRepositoryMetadata" class="org.springframework.data.services.repository.jpa.JpaRepositoryMetadata"/>
 
   <!-- Resolvers -->
+  <bean id="httpEntityResourceResolver"
+        class="org.springframework.data.services.web.exporter.HttpEntityResourceResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="httpMessageConverters"/>
+  </bean>
+  <bean id="jpaRepositoryResourceResolver"
+        class="org.springframework.data.services.repository.jpa.JpaRepositoryResourceResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+  </bean>
+  <bean id="jpaEntityResourceResolver"
+        class="org.springframework.data.services.repository.jpa.JpaEntityResourceResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+    <constructor-arg ref="conversionService"/>
+  </bean>
+  <bean id="httpEntityJpaRepositoryResourceResolver"
+        class="org.springframework.data.services.web.exporter.jpa.HttpEntityJpaRepositoryResourceResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+    <constructor-arg ref="conversionService"/>
+  </bean>
+  <bean id="responseEntityJpaResourceResolver"
+        class="org.springframework.data.services.web.exporter.jpa.LinkAwareJpaResourceResolver">
+    <constructor-arg ref="baseUri"/>
+    <constructor-arg ref="jpaRepositoryMetadata"/>
+    <constructor-arg ref="conversionService"/>
+  </bean>
+  <!-- Resolvers by HTTP method -->
   <bean id="getResolvers" class="org.springframework.data.services.DelegatingResourceResolver">
     <constructor-arg>
       <list>
-        <bean class="org.springframework.data.services.repository.jpa.JpaRepositoryResourceResolver">
-          <constructor-arg ref="baseUri"/>
-          <constructor-arg ref="jpaRepositoryMetadata"/>
-        </bean>
-        <bean class="org.springframework.data.services.repository.jpa.JpaEntityResourceResolver">
-          <constructor-arg ref="baseUri"/>
-          <constructor-arg ref="jpaRepositoryMetadata"/>
-          <constructor-arg ref="conversionService"/>
-        </bean>
+        <ref bean="jpaRepositoryResourceResolver"/>
+        <ref bean="jpaEntityResourceResolver"/>
+      </list>
+    </constructor-arg>
+  </bean>
+  <bean id="createOrUpdateResolvers" class="org.springframework.data.services.DelegatingResourceResolver">
+    <constructor-arg>
+      <list>
+        <ref bean="httpEntityResourceResolver"/>
+        <ref bean="jpaRepositoryResourceResolver"/>
+        <ref bean="httpEntityJpaRepositoryResourceResolver"/>
       </list>
     </constructor-arg>
   </bean>
 
   <!-- The Exporter -->
-  <!--
   <bean class="org.springframework.data.services.web.exporter.ResourceResolverExporterController">
     <property name="baseUri" ref="baseUri"/>
     <property name="resourceResolvers">
       <map>
         <entry key="GET" value-ref="getResolvers"/>
+        <entry key="POST" value-ref="createOrUpdateResolvers"/>
+        <entry key="PUT" value-ref="createOrUpdateResolvers"/>
       </map>
     </property>
+    <property name="inputResolver" ref="httpEntityResourceResolver"/>
+    <property name="outputResolver" ref="responseEntityJpaResourceResolver"/>
   </bean>
-  -->
+  <!--
   <bean class="org.springframework.data.services.web.exporter.RepositoryExporterController">
     <property name="baseUri" ref="baseUri"/>
     <property name="conversionService" ref="conversionService"/>
@@ -87,6 +117,7 @@
     <property name="httpMessageConverters" ref="httpMessageConverters"/>
     <property name="jsonMediaType" value="application/json"/>
   </bean>
+  -->
 
   <!-- Handle rendering in different representations -->
   <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">

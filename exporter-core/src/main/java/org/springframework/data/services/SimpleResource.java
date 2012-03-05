@@ -7,18 +7,18 @@ import java.util.Map;
 /**
  * @author Jon Brisbin <jon@jbrisbin.com>
  */
-public class SimpleResource implements Resource {
+public class SimpleResource<T> implements Resource<T> {
 
   private final URI uri;
   private final Map<String, String> metadata = new HashMap<String, String>();
-  private final Object entity;
+  private final T entity;
 
   public SimpleResource(URI uri) {
     this.uri = uri;
-    this.entity=null;
+    this.entity = null;
   }
 
-  public SimpleResource(URI uri, Object entity) {
+  public SimpleResource(URI uri, T entity) {
     this.uri = uri;
     this.entity = entity;
   }
@@ -31,7 +31,7 @@ public class SimpleResource implements Resource {
     return metadata;
   }
 
-  @Override public Object target() {
+  @Override public T target() {
     return entity;
   }
 

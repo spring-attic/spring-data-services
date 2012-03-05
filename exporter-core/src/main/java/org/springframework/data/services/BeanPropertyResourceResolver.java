@@ -22,7 +22,8 @@ public class BeanPropertyResourceResolver extends AbstractResourceResolver {
     return BeanUtils.hasProperty(propertyName, tail.target());
   }
 
-  @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) {
+  @SuppressWarnings({"unchecked"})
+  @Override public Resource<?> resolve(URI uri, List<Resource<?>> stack) throws ResolverException {
     URI nameUri = UriUtils.tail(baseUri, uri);
     Resource tail = BeanUtils.tail(stack);
     String propertyName = UriUtils.path(nameUri);

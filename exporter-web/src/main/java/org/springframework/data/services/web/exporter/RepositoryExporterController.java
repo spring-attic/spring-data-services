@@ -769,7 +769,7 @@ public class RepositoryExporterController implements ResourceExporterController 
 
   @SuppressWarnings({"unchecked"})
   private Object resolveTopLevelResource(String uri) {
-    URI href = UriUtils.parseUri(uri);
+    URI href = URI.create(uri);
     if (validBaseUri(href)) {
       URI relativeUri = baseUri.relativize(href);
       List<URI> uris = UriUtils.explode(baseUri, relativeUri);
@@ -793,7 +793,7 @@ public class RepositoryExporterController implements ResourceExporterController 
 
   @SuppressWarnings({"unchecked"})
   private Object resolveSecondLevelResource(String uri) {
-    URI href = UriUtils.parseUri(uri);
+    URI href = URI.create(uri);
     if (validBaseUri(href)) {
       URI relativeUri = baseUri.relativize(href);
       List<URI> uris = UriUtils.explode(baseUri, relativeUri);

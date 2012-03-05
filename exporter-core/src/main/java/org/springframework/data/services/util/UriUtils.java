@@ -1,7 +1,6 @@
 package org.springframework.data.services.util;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +13,12 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public abstract class UriUtils {
 
-  public static URI parseUri(String uri) {
-    try {
-      return new URI(uri);
-    } catch (URISyntaxException e) {
-      return null;
-    }
+  private UriUtils() {
+  }
+
+  public static boolean validBaseUri(URI baseUri, URI uri) {
+    String path = UriUtils.path(baseUri.relativize(uri));
+    return !StringUtils.hasText(path) || path.charAt(0) != '/';
   }
 
   public static <V> V foreach(URI baseUri, URI uri, Handler<URI, V> handler) {
@@ -37,15 +36,8 @@ public abstract class UriUtils {
       return uris;
     }
     URI relativeUri = baseUri.relativize(uri);
-    try {
-      for (String part : relativeUri.getPath().split("/")) {
-        uris.add(new URI(part));
-      }
-      if (StringUtils.hasText(relativeUri.getFragment())) {
-        uris.add(new URI("#" + relativeUri.getFragment()));
-      }
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException(e);
+    for (String part : relativeUri.getPath().split("/")) {
+      uris.add(URI.create(part + (StringUtils.hasText(uri.getQuery()) ? "?" + uri.getQuery() : "")));
     }
     return uris;
   }

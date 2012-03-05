@@ -25,6 +25,9 @@ import org.springframework.util.StringUtils;
  */
 public abstract class BeanUtils {
 
+  private BeanUtils() {
+  }
+
   public static ConfigurableConversionService CONVERSION_SERVICE = new DefaultConversionService();
 
   private static final Cache<Object[], Field> fields = CacheBuilder.newBuilder().build(
@@ -102,7 +105,7 @@ public abstract class BeanUtils {
   @SuppressWarnings({"unchecked"})
   public static <T> T findFirst(Class<T> clazz, List<?> stack) {
     for (Object o : stack) {
-      if (ClassUtils.isAssignable(o.getClass(), clazz)) {
+      if (ClassUtils.isAssignable(clazz, o.getClass())) {
         return (T) o;
       }
     }
@@ -162,7 +165,7 @@ public abstract class BeanUtils {
 
   public static boolean containsType(Class<?> type, Object[] objs) {
     for (Object obj : objs) {
-      if (null != obj && ClassUtils.isAssignable(type, obj.getClass())) {
+      if (null != obj && ClassUtils.isAssignable(obj.getClass(), type)) {
         return true;
       }
     }
@@ -199,7 +202,7 @@ public abstract class BeanUtils {
       Object rtnVal = m.invoke(target, newArgs.toArray());
       if ((returnType != Void.TYPE || returnType != Object.class)
           && null != rtnVal
-          && !ClassUtils.isAssignable(rtnVal.getClass(), returnType)) {
+          && !ClassUtils.isAssignable(returnType, rtnVal.getClass())) {
         return CONVERSION_SERVICE.convert(rtnVal, returnType);
       } else {
         return (T) rtnVal;
