@@ -97,6 +97,7 @@
   </bean>
 
   <!-- The Exporter -->
+  <!--
   <bean class="org.springframework.data.services.web.exporter.ResourceResolverExporterController">
     <property name="baseUri" ref="baseUri"/>
     <property name="resourceResolvers">
@@ -109,7 +110,7 @@
     <property name="inputResolver" ref="httpEntityResourceResolver"/>
     <property name="outputResolver" ref="responseEntityJpaResourceResolver"/>
   </bean>
-  <!--
+  -->
   <bean class="org.springframework.data.services.web.exporter.RepositoryExporterController">
     <property name="baseUri" ref="baseUri"/>
     <property name="conversionService" ref="conversionService"/>
@@ -117,7 +118,6 @@
     <property name="httpMessageConverters" ref="httpMessageConverters"/>
     <property name="jsonMediaType" value="application/json"/>
   </bean>
-  -->
 
   <!-- Handle rendering in different representations -->
   <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
