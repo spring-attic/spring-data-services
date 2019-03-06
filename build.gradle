@@ -24,10 +24,10 @@ subprojects {
 
   repositories {
     mavenCentral(artifactUrls: [
-        "http://maven.springframework.org/release",
-        "http://maven.springframework.org/milestone",
-        //"http://repository.jboss.org/maven2/",
-        //"http://download.java.net/maven/2/"
+        "https://maven.springframework.org/release",
+        "https://maven.springframework.org/milestone",
+        //"https://repository.jboss.org/maven2/",
+        //"https://download.java.net/maven/2/"
     ])
     mavenLocal()
   }
