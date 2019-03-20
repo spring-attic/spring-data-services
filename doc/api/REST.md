@@ -22,7 +22,7 @@ Here's what some sample resources would look like on the server side as a JPA en
 
 ### Discoverability
 
-Following the principles of [HATEOS](http://en.wikipedia.org/wiki/HATEOAS), the REST API should be fundamentally discoverable, starting with the base URL:
+Following the principles of [HATEOS](https://en.wikipedia.org/wiki/HATEOAS), the REST API should be fundamentally discoverable, starting with the base URL:
 
     curl -v http://localhost:8080/baseurl/
 
@@ -55,7 +55,7 @@ Specifying an Accept header should cause the output to be rendered in the repres
 
 ### Links
 
-The method for exposing links here is somewhat arbitrary since there's no real consenus on how this should be done in JSON. The DOJO framework has [some linking functionality](http://www.sitepen.com/blog/2008/06/17/json-referencing-in-dojo/) that uses "$ref" as a field name, which corresponds to what MongoDB documents use for DBRefs. This convention seems as good as any other, so is the one we'll be using here.
+The method for exposing links here is somewhat arbitrary since there's no real consenus on how this should be done in JSON. The DOJO framework has [some linking functionality](https://www.sitepen.com/blog/2008/06/17/json-referencing-in-dojo/) that uses "$ref" as a field name, which corresponds to what MongoDB documents use for DBRefs. This convention seems as good as any other, so is the one we'll be using here.
 
 If the server understands links on the entity (meaning it's a JPA Entity with a @OneTo... et al mapping), then the user could POST new associations directly inline in the parent JSON:
 
